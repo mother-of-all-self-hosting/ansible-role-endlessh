@@ -1,0 +1,43 @@
+[Unit]
+Description=endlessh ssh trapit{{ endlessh_identifier }})
+{% for service in endlessh_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ endlessh_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ endlessh_identifier }} 2>/dev/null || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+                --rm \
+                --name={{ endlessh_identifier }} \
+                --log-driver=none \
+                --user={{ endlessh_uid }}:{{ endlessh_gid }} \
+                --cap-drop=ALL \
+                --network={{ endlessh_container_network }} \
+                {% if endlessh_container_host_bind_port %}
+                -p {{ endlessh_container_host_bind_port }}:{{ endlessh_container_port }} \
+                {% endif %}
+                {{ endlessh_container_image }} \
+                {% for arg in endlessh_container_extra_arguments %}
+                {{ arg }} \
+                {% endfor %}
+
+
+{% for network in endlessh_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ endlessh_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ endlessh_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ endlessh_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ endlessh_identifier }} 2>/dev/null || true'
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ endlessh_identifier }}
+
+[Install]
+WantedBy=multi-user.target

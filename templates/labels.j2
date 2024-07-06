@@ -1,0 +1,37 @@
+{% if endlessh_container_labels_traefik_enabled %}
+traefik.enable=true
+
+{% if endlessh_container_labels_traefik_docker_network %}
+traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
+{% endif %}
+
+traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_server_http_listen_port }}
+
+{% set middlewares = [] %}
+
+{% if endlessh_container_labels_middleware_basic_auth_enabled %}
+{% set middlewares = middlewares + [endlessh_identifier + '-basic-auth'] %}
+traefik.http.middlewares.{{ endlessh_identifier }}-basic-auth.basicauth.users={{ endlessh_container_labels_middleware_basic_auth_users }}
+{% endif %}
+
+traefik.http.middlewares.{{ endlessh_identifier }}-strip-prefix.stripprefix.prefixes={{ endlessh_path_prefix }}
+{% set middlewares = middlewares + [endlessh_identifier + '-strip-prefix@docker'] %}
+
+traefik.http.routers.{{ endlessh_identifier }}.rule={{ endlessh_container_labels_traefik_rule }}
+
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ endlessh_identifier }}.middlewares={{ middlewares | join(',') }}
+{% endif %}
+
+traefik.http.routers.{{ endlessh_identifier }}.service={{ endlessh_identifier }}
+traefik.http.routers.{{ endlessh_identifier }}.priority={{ endlessh_container_labels_traefik_priority }}
+traefik.http.routers.{{ endlessh_identifier }}.entrypoints={{ endlessh_container_labels_traefik_entrypoints }}
+
+traefik.http.routers.{{ endlessh_identifier }}.tls={{ endlessh_container_labels_traefik_tls | to_json }}
+{% if endlessh_container_labels_traefik_tls %}
+traefik.http.routers.{{ endlessh_identifier }}.tls.certResolver={{ endlessh_container_labels_traefik_tls_certResolver }}
+{% endif %}
+
+{% endif %}
+
+{{ endlessh_container_labels_additional_labels }}

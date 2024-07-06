@@ -1,0 +1,94 @@
+---
+
+endlessh_enabled: true
+endlessh_identifier: endlessh
+
+endlessh_hostname: ''
+endlessh_path_prefix: '/'
+
+endlessh_uid: ''
+endlessh_gid: ''
+
+endlessh_base_path: "/{{ endlessh_identifier }}"
+endlessh_config_path: "{{ endlessh_base_path }}/config"
+endlessh_env_path: "{{ endlessh_base_path }}/env"
+
+endlessh_systemd_required_services_list: ['docker.service']
+
+endlessh_version: 2024.0119.1
+
+endlessh_container_image: "{{ endlessh_container_image_registry_prefix }}shizunge/endlessh-go:{{ endlessh_container_image_tag }}"
+endlessh_container_image_registry_prefix: docker.io/
+endlessh_container_image_tag: "{{ endlessh_version }}"
+endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
+
+endlessh_container_network: '{{ endlessh_identifier }}'
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to a reverse proxy, which runs in a different container network and influxdb.
+endlessh_container_additional_networks: "{{ endlessh_container_additional_networks_auto + endlessh_container_additional_networks_custom }}"
+endlessh_container_additional_networks_auto: []
+endlessh_container_additional_networks_custom: []
+
+# Controls whether the endlessh container exposes its HTTP port.
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
+endlessh_container_host_bind_port: 22
+endlessh_container_port: 2222
+# endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `endlessh_container_labels_additional_labels`.
+endlessh_container_labels_traefik_enabled: false
+endlessh_container_labels_traefik_docker_network: "{{ endlessh_container_network }}"
+endlessh_container_labels_traefik_hostname: "{{ endlessh_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/endlessh`).
+endlessh_container_labels_traefik_path_prefix: "{{ endlessh_path_prefix }}"
+endlessh_container_labels_traefik_rule: "Host(`{{ endlessh_container_labels_traefik_hostname }}`){% if endlessh_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ endlessh_container_labels_traefik_path_prefix }}`){% endif %}"
+endlessh_container_labels_traefik_priority: 0
+endlessh_container_labels_traefik_entrypoints: web-secure
+endlessh_container_labels_traefik_tls: "{{ endlessh_container_labels_traefik_entrypoints != 'web' }}"
+endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
+# See: https://doc.traefik.io/traefik/middlewares/http/basicauth/#users
+endlessh_container_labels_metrics_middleware_basic_auth_users: ''
+
+# endlessh_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# endlessh_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+endlessh_container_labels_additional_labels: ''
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
+endlessh_container_labels_traefik_additional_request_headers: "{{ endlessh_container_labels_traefik_additional_request_headers_auto | combine(endlessh_container_labels_traefik_additional_request_headers_custom) }}"
+endlessh_container_labels_traefik_additional_request_headers_auto: {}
+endlessh_container_labels_traefik_additional_request_headers_custom: {}
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
+endlessh_container_labels_traefik_additional_response_headers: "{{ endlessh_container_labels_traefik_additional_response_headers_auto | combine(endlessh_container_labels_traefik_additional_response_headers_custom) }}"
+endlessh_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': endlessh_http_header_xss_protection} if endlessh_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': endlessh_http_header_frame_options} if endlessh_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': endlessh_http_header_content_type_options} if endlessh_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': endlessh_http_header_content_security_policy} if endlessh_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': endlessh_http_header_content_permission_policy} if endlessh_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': endlessh_http_header_strict_transport_security} if endlessh_http_header_strict_transport_security and endlessh_container_labels_traefik_tls else {})
+  }}
+endlessh_container_labels_traefik_additional_response_headers_custom: {}
+
+endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
+endlessh_container_extra_arguments_custom: []
+endlessh_container_extra_arguments_auto: []
+
+# endlessh_metrics_dashboard_urls contains a list of URLs with Grafana dashboard definitions.
+# This role doesn't make use of this variable, but you can hook this into other roles.
+endlessh_metrics_dashboard_urls:
+  - "https://grafana.com/api/dashboards/15156/revisions/12/download"

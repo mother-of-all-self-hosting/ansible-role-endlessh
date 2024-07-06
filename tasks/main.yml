@@ -1,0 +1,22 @@
+---
+
+- name: Run Endlessh installation tasks
+  tags:
+    - setup-all
+    - setup-endlessh
+    - install-all
+    - install-endlessh
+  block:
+    - when: endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+
+    - when: endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+
+- name: Run Endlessh uninstallation tasks
+  tags:
+    - setup-all
+    - setup-endlessh
+  block:
+    - when: not endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
