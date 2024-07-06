@@ -31,10 +31,13 @@ See the full list of options in the [default/main.yml](default/main.yml) file
 
 ## Exporting Prometheus metrics
 
+Default port is 2112 
+Default entrypoint is /metrics
+
 use environment variable 
 ```yaml
 endlessh_container_extra_arguments_custom:
- - "-e prometheusMonitoring=true"
+  - "-enable_prometheus"
 ```
 
 ### Exposing the web interface 
