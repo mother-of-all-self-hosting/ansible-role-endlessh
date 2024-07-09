@@ -1,8 +1,9 @@
 # Endlessh Ansible Role
-[endlessh-go](https://github.com/shizunge/endlessh-go) is a golang implementation of endlessh, a ssh trapit
-- with everything run in [Docker](https://www.docker.com/) containers
-- powered by [endlessh-go container image](https://hub.docker.com/r/shizunge/endlessh-go)
 
+[endlessh-go](https://github.com/shizunge/endlessh-go) is a Golang implementation of endlessh, an SSH tarpit.
+
+- with everything run in [Docker](https://www.docker.com/) containers
+- powered by the [endlessh-go container image](https://hub.docker.com/r/shizunge/endlessh-go)
 
 ## Installing
 
