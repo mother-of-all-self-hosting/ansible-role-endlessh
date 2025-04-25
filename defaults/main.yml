@@ -80,7 +80,6 @@ endlessh_container_labels_traefik_additional_response_headers_auto: |
   {{
     {}
     | combine ({'X-XSS-Protection': endlessh_http_header_xss_protection} if endlessh_http_header_xss_protection else {})
-    | combine ({'X-Frame-Options': endlessh_http_header_frame_options} if endlessh_http_header_frame_options else {})
     | combine ({'X-Content-Type-Options': endlessh_http_header_content_type_options} if endlessh_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': endlessh_http_header_content_security_policy} if endlessh_http_header_content_security_policy else {})
     | combine ({'Permission-Policy': endlessh_http_header_content_permission_policy} if endlessh_http_header_content_permission_policy else {})
