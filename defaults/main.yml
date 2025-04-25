@@ -19,6 +19,7 @@ endlessh_env_path: "{{ endlessh_base_path }}/env"
 
 endlessh_systemd_required_services_list: ['docker.service']
 
+# renovate: datasource=docker depName=shizunge/endlessh-go
 endlessh_version: 2024.0119.1
 
 endlessh_container_image: "{{ endlessh_container_image_registry_prefix }}shizunge/endlessh-go:{{ endlessh_container_image_tag }}"
