@@ -13,6 +13,9 @@ Description=endlessh ssh trapit{{ endlessh_identifier }})
 Requires={{ service }}
 After={{ service }}
 {% endfor %}
+{% for service in endlessh_systemd_wanted_services_list %}
+Wants={{ service }}
+{% endfor %}
 DefaultDependencies=no
 
 [Service]
