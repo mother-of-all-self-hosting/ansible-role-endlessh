@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Tiz
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Endlessh Ansible Role
 
 [endlessh-go](https://github.com/shizunge/endlessh-go) is a Golang implementation of endlessh, an SSH tarpit.
