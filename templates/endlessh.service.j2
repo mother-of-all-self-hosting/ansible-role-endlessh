@@ -1,5 +1,8 @@
 {#
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+SPDX-FileCopyrightText: 2024 Nikita Chernyi
 SPDX-FileCopyrightText: 2024 Tiz
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -14,24 +17,24 @@ DefaultDependencies=no
 
 [Service]
 Type=simple
+Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ endlessh_identifier }} 2>/dev/null || true'
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ endlessh_identifier }} 2>/dev/null || true'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-                --rm \
-                --name={{ endlessh_identifier }} \
-                --log-driver=none \
-                --user={{ endlessh_uid }}:{{ endlessh_gid }} \
-                --cap-drop=ALL \
-                --network={{ endlessh_container_network }} \
-                {% if endlessh_container_host_bind_port %}
-                -p {{ endlessh_container_host_bind_port }}:{{ endlessh_container_port }} \
-                {% endif %}
-                {{ endlessh_container_image }} \
-                {% for arg in endlessh_container_extra_arguments %}
-                {{ arg }} \
-                {% endfor %}
-
+      --rm \
+      --name={{ endlessh_identifier }} \
+      --log-driver=none \
+      --user={{ endlessh_uid }}:{{ endlessh_gid }} \
+      --cap-drop=ALL \
+      --network={{ endlessh_container_network }} \
+      {% if endlessh_container_host_bind_port %}
+      -p {{ endlessh_container_host_bind_port }}:{{ endlessh_container_port }} \
+      {% endif %}
+      {{ endlessh_container_image }} \
+      {% for arg in endlessh_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
 
 {% for network in endlessh_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ endlessh_identifier }}
@@ -41,6 +44,7 @@ ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {
 
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ endlessh_identifier }} 2>/dev/null || true'
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ endlessh_identifier }} 2>/dev/null || true'
+
 Restart=always
 RestartSec=30
 SyslogIdentifier={{ endlessh_identifier }}
