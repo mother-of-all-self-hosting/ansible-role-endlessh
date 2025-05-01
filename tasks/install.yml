@@ -35,6 +35,8 @@
   community.docker.docker_image:
     name: "{{ endlessh_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+    force_source: "{{ endlessh_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else endlessh_container_image_force_pull }}"
 
 - name: Ensure endlessh.service installed
   ansible.builtin.template:
