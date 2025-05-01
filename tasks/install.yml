@@ -26,8 +26,10 @@
 
 - name: Ensure endlessh network is created in Docker
   community.docker.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ endlessh_container_network }}"
     driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
 - name: Ensure endlessh container image is pulled
   community.docker.docker_image:
