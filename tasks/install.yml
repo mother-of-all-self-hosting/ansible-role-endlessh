@@ -24,19 +24,19 @@
   with_items:
     - labels
 
-- name: Ensure endlessh network is created in Docker
-  community.docker.docker_network:
-    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
-    name: "{{ endlessh_container_network }}"
-    driver: bridge
-    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
-
 - name: Ensure endlessh container image is pulled
   community.docker.docker_image:
     name: "{{ endlessh_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
     force_source: "{{ endlessh_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else endlessh_container_image_force_pull }}"
+
+- name: Ensure endlessh network is created in Docker
+  community.docker.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+    name: "{{ endlessh_container_network }}"
+    driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
 - name: Ensure endlessh.service installed
   ansible.builtin.template:
