@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
 [Unit]
-Description=Endlessh ssh trapit{{ endlessh_identifier }})
+Description=Endlessh SSH trapit{{ endlessh_identifier }})
 {% for service in endlessh_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
