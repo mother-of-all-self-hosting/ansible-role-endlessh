@@ -35,7 +35,7 @@ endlessh_container_image_registry_prefix_upstream: "{{ endlessh_container_image_
 endlessh_container_image_registry_prefix_upstream_default: docker.io/
 endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
 
-# Controls whether the endlessh container exposes its HTTP port.
+# Controls whether the Endlessh container exposes its HTTP port.
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
 endlessh_container_host_bind_port: 22
@@ -129,7 +129,7 @@ endlessh_http_header_content_permission_policy: "{{ 'interest-cohort=()' if endl
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 endlessh_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if endlessh_hsts_preload_enabled else '' }}"
 
-# Controls whether to endlessh a "Permissions-Policy interest-cohort=();" header along with all responses
+# Controls whether to Endlessh a "Permissions-Policy interest-cohort=();" header along with all responses
 #
 # Learn more about what it is here:
 # - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
