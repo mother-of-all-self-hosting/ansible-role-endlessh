@@ -20,8 +20,6 @@ endlessh_gid: ''
 
 endlessh_base_path: "/{{ endlessh_identifier }}"
 
-endlessh_systemd_required_services_list: ['docker.service']
-
 # renovate: datasource=docker depName=shizunge/endlessh-go
 endlessh_version: 2024.0119.1
 
@@ -96,6 +94,12 @@ endlessh_container_labels_traefik_additional_response_headers_custom: {}
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
 endlessh_container_extra_arguments_custom: []
 endlessh_container_extra_arguments_auto: []
+
+# List of systemd services that the Endlessh systemd service depends on
+endlessh_systemd_required_services_list: "{{ endlessh_systemd_required_services_list_default + endlessh_systemd_required_services_list_auto + endlessh_systemd_required_services_list_custom }}"
+endlessh_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+endlessh_systemd_required_services_list_auto: []
+endlessh_systemd_required_services_list_custom: []
 
 # endlessh_metrics_dashboard_urls contains a list of URLs with Grafana dashboard definitions.
 # This role doesn't make use of this variable, but you can hook this into other roles.
