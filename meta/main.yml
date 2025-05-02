@@ -5,7 +5,7 @@
 galaxy_info:
   role_name: endlessh
   author: Sudo-Tiz
-  description: Ansible role to install endlessh-go, A golang implementation of Endlessh, a SSH trapit
+  description: Ansible role to install endlessh-go, A golang implementation of Endlessh, a SSH tarpit
   platforms:
     - name: Debian
       versions:
