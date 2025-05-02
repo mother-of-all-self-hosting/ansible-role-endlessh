@@ -11,7 +11,15 @@
 # Project source code URL: https://github.com/shizunge/endlessh-go
 
 endlessh_enabled: true
+
 endlessh_identifier: endlessh
+endlessh_base_path: "/{{ endlessh_identifier }}"
+
+# renovate: datasource=docker depName=shizunge/endlessh-go
+endlessh_version: 2024.0119.1
+
+endlessh_uid: ''
+endlessh_gid: ''
 
 # The hostname at which Endlessh is served.
 endlessh_hostname: ''
@@ -20,14 +28,6 @@ endlessh_hostname: ''
 # This value must either be `/` or not end with a slash (e.g. `/endlessh-go`).
 endlessh_path_prefix: '/'
 
-endlessh_uid: ''
-endlessh_gid: ''
-
-endlessh_base_path: "/{{ endlessh_identifier }}"
-
-# renovate: datasource=docker depName=shizunge/endlessh-go
-endlessh_version: 2024.0119.1
-
 endlessh_container_image: "{{ endlessh_container_image_registry_prefix }}shizunge/endlessh-go:{{ endlessh_container_image_tag }}"
 endlessh_container_image_tag: "{{ endlessh_version }}"
 endlessh_container_image_registry_prefix: "{{ endlessh_container_image_registry_prefix_upstream }}"
@@ -35,8 +35,16 @@ endlessh_container_image_registry_prefix_upstream: "{{ endlessh_container_image_
 endlessh_container_image_registry_prefix_upstream_default: docker.io/
 endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
 
+# Controls whether the endlessh container exposes its HTTP port.
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
+endlessh_container_host_bind_port: 22
+
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 endlessh_container_network: '{{ endlessh_identifier }}'
+
+# The port number in the container
+endlessh_container_port: 2222
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -44,14 +52,6 @@ endlessh_container_network: '{{ endlessh_identifier }}'
 endlessh_container_additional_networks: "{{ endlessh_container_additional_networks_auto + endlessh_container_additional_networks_custom }}"
 endlessh_container_additional_networks_auto: []
 endlessh_container_additional_networks_custom: []
-
-# Controls whether the endlessh container exposes its HTTP port.
-#
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
-endlessh_container_host_bind_port: 22
-
-# The port number in the container
-endlessh_container_port: 2222
 
 # endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
@@ -70,15 +70,6 @@ endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/middlewares/http/basicauth/#users
 endlessh_container_labels_metrics_middleware_basic_auth_users: ''
-
-# endlessh_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
-# See `../templates/labels.j2` for details.
-#
-# Example:
-# endlessh_container_labels_additional_labels: |
-#   my.label=1
-#   another.label="here"
-endlessh_container_labels_additional_labels: ''
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
@@ -99,6 +90,15 @@ endlessh_container_labels_traefik_additional_response_headers_auto: |
     | combine ({'Strict-Transport-Security': endlessh_http_header_strict_transport_security} if endlessh_http_header_strict_transport_security and endlessh_container_labels_traefik_tls else {})
   }}
 endlessh_container_labels_traefik_additional_response_headers_custom: {}
+
+# endlessh_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# endlessh_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+endlessh_container_labels_additional_labels: ''
 
 # A list of extra arguments to pass to the container (`docker run` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
