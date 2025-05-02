@@ -40,6 +40,6 @@
 
 - name: Ensure endlessh.service installed
   ansible.builtin.template:
-    src: "{{ role_path }}/templates/endlessh.service.j2"
+    src: "{{ role_path }}/templates/systemd/endlessh.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ endlessh_identifier }}.service"
     mode: 0644
