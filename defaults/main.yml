@@ -12,7 +12,11 @@
 endlessh_enabled: true
 endlessh_identifier: endlessh
 
+# The hostname at which Endlessh is served.
 endlessh_hostname: ''
+
+# The path at which Endlessh is exposed.
+# This value must either be `/` or not end with a slash (e.g. `/endlessh-go`).
 endlessh_path_prefix: '/'
 
 endlessh_uid: ''
@@ -30,6 +34,7 @@ endlessh_container_image_registry_prefix_upstream: "{{ endlessh_container_image_
 endlessh_container_image_registry_prefix_upstream_default: docker.io/
 endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
 
+# The base container network. It will be auto-created by this role if it doesn't exist already.
 endlessh_container_network: '{{ endlessh_identifier }}'
 
 # A list of additional container networks that the container would be connected to.
@@ -43,7 +48,10 @@ endlessh_container_additional_networks_custom: []
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
 endlessh_container_host_bind_port: 22
+
+# The port number in the container
 endlessh_container_port: 2222
+
 # endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
 #
@@ -91,6 +99,7 @@ endlessh_container_labels_traefik_additional_response_headers_auto: |
   }}
 endlessh_container_labels_traefik_additional_response_headers_custom: {}
 
+# A list of extra arguments to pass to the container (`docker run` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
 endlessh_container_extra_arguments_custom: []
 endlessh_container_extra_arguments_auto: []
