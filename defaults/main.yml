@@ -1,4 +1,9 @@
+# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2024 Tiz
+# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -21,8 +26,10 @@ endlessh_systemd_required_services_list: ['docker.service']
 endlessh_version: 2024.0119.1
 
 endlessh_container_image: "{{ endlessh_container_image_registry_prefix }}shizunge/endlessh-go:{{ endlessh_container_image_tag }}"
-endlessh_container_image_registry_prefix: docker.io/
 endlessh_container_image_tag: "{{ endlessh_version }}"
+endlessh_container_image_registry_prefix: "{{ endlessh_container_image_registry_prefix_upstream }}"
+endlessh_container_image_registry_prefix_upstream: "{{ endlessh_container_image_registry_prefix_upstream_default }}"
+endlessh_container_image_registry_prefix_upstream_default: docker.io/
 endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
 
 endlessh_container_network: '{{ endlessh_identifier }}'
