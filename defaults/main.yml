@@ -14,8 +14,6 @@ endlessh_uid: ''
 endlessh_gid: ''
 
 endlessh_base_path: "/{{ endlessh_identifier }}"
-endlessh_config_path: "{{ endlessh_base_path }}/config"
-endlessh_env_path: "{{ endlessh_base_path }}/env"
 
 endlessh_systemd_required_services_list: ['docker.service']
 
