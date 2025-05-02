@@ -8,6 +8,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
+# Project source code URL: https://github.com/shizunge/endlessh-go
 
 endlessh_enabled: true
 endlessh_identifier: endlessh
