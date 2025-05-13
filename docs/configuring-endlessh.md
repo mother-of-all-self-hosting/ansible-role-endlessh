@@ -80,7 +80,20 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, the instance starts running on the server and listens to the specified port (port 22 by default).
 
-Endlessh-go can natively expose metrics to Prometheus. If you are looking for an integration, you can check out the MASH playbook. See [here](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/services/endlessh.md#integrating-with-prometheus) for more information.
+You can customize how it works with the `endlessh_container_extra_arguments_custom` variable. For example, you can have it log to standard error instead of files by adding the following configuration:
+
+```yaml
+endlessh_container_extra_arguments_custom:
+  - "-logtostderr"
+```
+
+See [this section](https://github.com/shizunge/endlessh-go/blob/main/README.md#usage) of the documentation for other available arguments.
+
+### Integrate with Prometheus
+
+Endlessh-go can natively expose metrics to Prometheus.
+
+If you are looking for an integration, you can check out the MASH playbook. See [here](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/services/endlessh.md#integrating-with-prometheus) for more information.
 
 ## Troubleshooting
 
