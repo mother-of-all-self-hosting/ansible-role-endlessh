@@ -1,3 +1,4 @@
+# SPDX-FileCopyrightText: 2024 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Tiz
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -11,17 +12,19 @@
 
 - when: endlessh_service_stat.stat.exists | bool
   block:
-    - name: Ensure Endlessh service is stopped
+    - name: Ensure Endlessh systemd service is stopped
       ansible.builtin.service:
         name: "{{ endlessh_identifier }}"
         state: stopped
+        enabled: false
         daemon_reload: true
-    - name: Ensure Endlessh service doesn't exist
+
+    - name: Ensure Endlessh systemd service does not exist
       ansible.builtin.file:
-        dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ endlessh_identifier }}.service"
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ endlessh_identifier }}.service"
         state: absent
 
-    - name: Ensure Endlessh base path is files deleted (make sure to delete node data)
+    - name: Ensure Endlessh path does not exist
       ansible.builtin.file:
         path: "{{ endlessh_base_path }}"
         state: absent
