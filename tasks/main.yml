@@ -1,26 +1,30 @@
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Tiz
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
 
-- name: Run Endlessh installation tasks
+- name: Perform Endlessh installation tasks
+  block:
+    - name: Validate Endlessh configuration
+      when: endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+
+    - name: Install Endlessh
+      when: endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
     - setup-endlessh
     - install-all
     - install-endlessh
+
+- name: Perform Endlessh uninstallation tasks
   block:
-    - when: endlessh_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
-
-    - when: endlessh_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
-
-- name: Run Endlessh uninstallation tasks
+    - name: Uninstall Endlessh
+      when: not endlessh_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
     - setup-all
     - setup-endlessh
-  block:
-    - when: not endlessh_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
