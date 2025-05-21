@@ -38,7 +38,7 @@ endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':lat
 # Controls whether the Endlessh container exposes its HTTP port.
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
-endlessh_container_host_bind_port: 22
+endlessh_container_http_host_bind_port: 22
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 endlessh_container_network: '{{ endlessh_identifier }}'

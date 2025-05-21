@@ -13,6 +13,7 @@
   when: "item.old in vars"
   with_items:
     - {'old': 'endlessh_server_http_listen_port', 'new': 'endlessh_container_http_port'}
+    - {'old': 'endlessh_container_host_bind_port', 'new': 'endlessh_container_http_host_bind_port'}
 
 - name: Fail if required Endlessh settings not defined
   ansible.builtin.fail:
