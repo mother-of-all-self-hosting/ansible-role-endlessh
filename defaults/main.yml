@@ -44,7 +44,7 @@ endlessh_container_host_bind_port: 22
 endlessh_container_network: '{{ endlessh_identifier }}'
 
 # The port number in the container
-endlessh_container_port: 2222
+endlessh_container_http_port: 2222
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
