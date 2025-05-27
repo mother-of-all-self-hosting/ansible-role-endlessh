@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Check existence of Endlessh systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ endlessh_identifier }}.service"
   register: endlessh_service_stat
 
-- when: endlessh_service_stat.stat.exists | bool
+- name: Uninstall Endlessh systemd services and files
+  when: endlessh_service_stat.stat.exists | bool
   block:
     - name: Ensure Endlessh systemd service is stopped
       ansible.builtin.service:

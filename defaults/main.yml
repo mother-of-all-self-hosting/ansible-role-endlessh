@@ -18,15 +18,15 @@ endlessh_base_path: "/{{ endlessh_identifier }}"
 # renovate: datasource=docker depName=shizunge/endlessh-go
 endlessh_version: 2024.1106.0
 
-endlessh_uid: ''
-endlessh_gid: ''
+endlessh_uid: ""
+endlessh_gid: ""
 
 # The hostname at which Endlessh is served.
-endlessh_hostname: ''
+endlessh_hostname: ""
 
 # The path at which Endlessh is exposed.
 # This value must either be `/` or not end with a slash (e.g. `/endlessh-go`).
-endlessh_path_prefix: '/'
+endlessh_path_prefix: "/"
 
 endlessh_container_image: "{{ endlessh_container_image_registry_prefix }}shizunge/endlessh-go:{{ endlessh_container_image_tag }}"
 endlessh_container_image_tag: "{{ endlessh_version }}"
@@ -41,7 +41,7 @@ endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':lat
 endlessh_container_http_host_bind_port: 22
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
-endlessh_container_network: '{{ endlessh_identifier }}'
+endlessh_container_network: "{{ endlessh_identifier }}"
 
 # The port number in the container
 endlessh_container_http_port: 2222
@@ -69,7 +69,7 @@ endlessh_container_labels_traefik_tls: "{{ endlessh_container_labels_traefik_ent
 endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/middlewares/http/basicauth/#users
-endlessh_container_labels_metrics_middleware_basic_auth_users: ''
+endlessh_container_labels_metrics_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
@@ -98,7 +98,7 @@ endlessh_container_labels_traefik_additional_response_headers_custom: {}
 # endlessh_container_labels_additional_labels: |
 #   my.label=1
 #   another.label="here"
-endlessh_container_labels_additional_labels: ''
+endlessh_container_labels_additional_labels: ""
 
 # A list of extra arguments to pass to the container (`docker run` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
