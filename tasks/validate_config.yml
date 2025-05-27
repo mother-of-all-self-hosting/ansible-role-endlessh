@@ -22,3 +22,5 @@
   when: "vars[item] == ''"
   with_items:
     - endlessh_enabled
+    - endlessh_uid
+    - endlessh_gid
