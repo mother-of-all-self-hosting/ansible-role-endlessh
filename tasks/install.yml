@@ -30,10 +30,34 @@
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
     force_source: "{{ endlessh_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else endlessh_container_image_force_pull }}"
+  when: "not endlessh_container_image_self_build | bool"
   register: result
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
   until: result is not failed
+
+- name: Run if self-building of Endlessh container image is enabled
+  when: "endlessh_container_image_self_build | bool"
+  block:
+    - name: Ensure Endlessh repository is present on self-build
+      ansible.builtin.git:
+        repo: "{{ endlessh_container_repo }}"
+        version: "{{ endlessh_container_repo_version }}"
+        dest: "{{ endlessh_container_src_files_path }}"
+        force: "yes"
+      register: endlessh_git_pull_results
+
+    - name: Ensure Endlessh container image is built
+      community.docker.docker_image:
+        name: "{{ endlessh_container_image_name }}"
+        source: build
+        force_source: "{{ endlessh_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+        force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else endlessh_git_pull_results.changed }}"
+        build:
+          dockerfile: Dockerfile
+          path: "{{ endlessh_container_src_files_path }}"
+          pull: true
+          args:
 
 - name: Ensure Endlessh container network is created
   community.docker.docker_network:
