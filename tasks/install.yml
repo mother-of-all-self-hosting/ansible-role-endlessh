@@ -74,7 +74,7 @@
 
 - name: Ensure Endlessh container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
-  community.docker.docker_network:
+  community.general.docker_network:
     enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ endlessh_container_network }}"
     driver: bridge
