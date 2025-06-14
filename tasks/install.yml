@@ -54,21 +54,21 @@
   block:
     - name: Ensure Endlessh repository is present on self-build
       ansible.builtin.git:
-        repo: "{{ endlessh_container_repo }}"
-        version: "{{ endlessh_container_repo_version }}"
-        dest: "{{ endlessh_container_src_files_path }}"
+        repo: "{{ endlessh_container_image_self_build_repo }}"
+        version: "{{ endlessh_container_image_self_build_repo_version }}"
+        dest: "{{ endlessh_container_image_self_build_src_files_path }}"
         force: "yes"
       register: endlessh_git_pull_results
 
     - name: Ensure Endlessh container image is built
       community.docker.docker_image:
-        name: "{{ endlessh_container_image_name }}"
+        name: "{{ endlessh_container_image_self_build_name }}"
         source: build
         force_source: "{{ endlessh_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
         force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else endlessh_git_pull_results.changed }}"
         build:
           dockerfile: Dockerfile
-          path: "{{ endlessh_container_src_files_path }}"
+          path: "{{ endlessh_container_image_self_build_src_files_path }}"
           pull: true
           args:
 
