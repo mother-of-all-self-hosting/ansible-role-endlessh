@@ -11,8 +11,6 @@ traefik.enable=true
 traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
 {% endif %}
 
-traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_http_port }}
-
 {% set middlewares = [] %}
 
 {% if endlessh_container_labels_middleware_basic_auth_enabled %}
@@ -38,6 +36,7 @@ traefik.http.routers.{{ endlessh_identifier }}.tls={{ endlessh_container_labels_
 traefik.http.routers.{{ endlessh_identifier }}.tls.certResolver={{ endlessh_container_labels_traefik_tls_certResolver }}
 {% endif %}
 
+traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_http_port }}
 {% endif %}
 
 {{ endlessh_container_labels_additional_labels }}
