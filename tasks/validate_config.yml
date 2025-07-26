@@ -9,7 +9,7 @@
     msg: >-
       Your configuration contains a variable, which now has a different name.
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
-  when: "item.old in vars"
+  when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
     - { "old": "endlessh_server_http_listen_port", "new": "endlessh_container_http_port" }
     - { "old": "endlessh_container_host_bind_port", "new": "endlessh_container_http_host_bind_port" }
