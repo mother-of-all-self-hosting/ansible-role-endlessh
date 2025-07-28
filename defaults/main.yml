@@ -78,7 +78,7 @@ endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 endlessh_container_labels_metrics_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
-# To add your own custom request headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
+# To add your own custom request headers, use `endlessh_container_labels_traefik_additional_request_headers_custom`
 endlessh_container_labels_traefik_additional_request_headers: "{{ endlessh_container_labels_traefik_additional_request_headers_auto | combine(endlessh_container_labels_traefik_additional_request_headers_custom) }}"
 endlessh_container_labels_traefik_additional_request_headers_auto: {}
 endlessh_container_labels_traefik_additional_request_headers_custom: {}
