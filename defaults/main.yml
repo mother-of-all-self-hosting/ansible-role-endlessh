@@ -165,7 +165,10 @@ endlessh_systemd_required_services_list_auto: []
 endlessh_systemd_required_services_list_custom: []
 
 # List of systemd services that the Endlessh systemd service wants
-endlessh_systemd_wanted_services_list: []
+endlessh_systemd_wanted_services_list: "{{ endlessh_systemd_wanted_services_list_default + endlessh_systemd_wanted_services_list_auto + endlessh_systemd_wanted_services_list_custom }}"
+endlessh_systemd_wanted_services_list_default: []
+endlessh_systemd_wanted_services_list_auto: []
+endlessh_systemd_wanted_services_list_custom: []
 
 # endlessh_metrics_dashboard_urls contains a list of URLs with Grafana dashboard definitions.
 # This role doesn't make use of this variable, but you can hook this into other roles.
