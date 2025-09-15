@@ -16,7 +16,7 @@ endlessh_identifier: endlessh
 endlessh_base_path: "/{{ endlessh_identifier }}"
 
 # renovate: datasource=docker depName=shizunge/endlessh-go
-endlessh_version: 2024.1106.0
+endlessh_version: 2025.0914.0
 
 endlessh_uid: ""
 endlessh_gid: ""
