@@ -92,7 +92,7 @@ endlessh_container_labels_traefik_additional_response_headers_auto: |
     | combine ({'X-XSS-Protection': endlessh_http_header_xss_protection} if endlessh_http_header_xss_protection else {})
     | combine ({'X-Content-Type-Options': endlessh_http_header_content_type_options} if endlessh_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': endlessh_http_header_content_security_policy} if endlessh_http_header_content_security_policy else {})
-    | combine ({'Permission-Policy': endlessh_http_header_content_permission_policy} if endlessh_http_header_content_permission_policy else {})
+    | combine ({'Permissions-Policy': endlessh_http_header_permissions_policy} if endlessh_http_header_permissions_policy else {})
     | combine ({'Strict-Transport-Security': endlessh_http_header_strict_transport_security} if endlessh_http_header_strict_transport_security and endlessh_container_labels_traefik_tls else {})
   }}
 endlessh_container_labels_traefik_additional_response_headers_custom: {}
@@ -127,9 +127,9 @@ endlessh_http_header_content_type_options: nosniff
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
 endlessh_http_header_content_security_policy: frame-ancestors 'self'
 
-# Specifies the value of the `Permission-Policy` header.
-# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
-endlessh_http_header_content_permission_policy: "{{ 'interest-cohort=()' if endlessh_floc_optout_enabled else '' }}"
+# Specifies the value of the `Permissions-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
+endlessh_http_header_permissions_policy: "{{ 'interest-cohort=()' if endlessh_floc_optout_enabled else '' }}"
 
 # Specifies the value of the `Strict-Transport-Security` header.
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
@@ -143,7 +143,7 @@ endlessh_http_header_strict_transport_security: "max-age=31536000; includeSubDom
 # - https://amifloced.org/
 #
 # Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
-# See: `endlessh_content_permission_policy`
+# See: `endlessh_http_header_permissions_policy`
 endlessh_floc_optout_enabled: true
 
 # Controls if HSTS preloading is enabled
