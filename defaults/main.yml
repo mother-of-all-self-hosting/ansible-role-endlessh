@@ -74,7 +74,7 @@ endlessh_container_labels_traefik_entrypoints: web-secure
 endlessh_container_labels_traefik_tls: "{{ endlessh_container_labels_traefik_entrypoints != 'web' }}"
 endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
-# See: https://doc.traefik.io/traefik/middlewares/http/basicauth/#users
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
 endlessh_container_labels_metrics_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
