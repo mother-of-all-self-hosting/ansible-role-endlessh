@@ -13,9 +13,9 @@ traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
 
 {% set middlewares = [] %}
 
-{% if endlessh_container_labels_middleware_basic_auth_enabled %}
+{% if endlessh_container_labels_metrics_middleware_basic_auth_enabled %}
 {% set middlewares = middlewares + [endlessh_identifier + '-basic-auth'] %}
-traefik.http.middlewares.{{ endlessh_identifier }}-basic-auth.basicauth.users={{ endlessh_container_labels_middleware_basic_auth_users }}
+traefik.http.middlewares.{{ endlessh_identifier }}-basic-auth.basicauth.users={{ endlessh_container_labels_metrics_middleware_basic_auth_users }}
 {% endif %}
 
 traefik.http.middlewares.{{ endlessh_identifier }}-strip-prefix.stripprefix.prefixes={{ endlessh_path_prefix }}

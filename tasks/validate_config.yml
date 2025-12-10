@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Tiz
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -14,6 +15,8 @@
     - { "old": "endlessh_server_http_listen_port", "new": "endlessh_container_http_port" }
     - { "old": "endlessh_container_host_bind_port", "new": "endlessh_container_http_host_bind_port" }
     - { "old": "endlessh_http_header_content_permission_policy", "new": "endlessh_http_header_permissions_policy" }
+    - { "old": "endlessh_container_labels_middleware_basic_auth_enabled", "new": "endlessh_container_labels_metrics_middleware_basic_auth_enabled" }
+    - { "old": "endlessh_container_labels_middleware_basic_auth_users", "new": "endlessh_container_labels_metrics_middleware_basic_auth_users" }
 
 - name: Fail if required Endlessh settings not defined
   ansible.builtin.fail:
