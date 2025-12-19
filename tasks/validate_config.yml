@@ -24,6 +24,6 @@
       You need to define a required configuration setting (`{{ item }}`).
   when: "lookup('vars', item, default='') | string | length == 0"
   with_items:
-    - endlessh_enabled
     - endlessh_uid
     - endlessh_gid
+    - endlessh_container_network
