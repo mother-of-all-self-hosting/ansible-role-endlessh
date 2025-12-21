@@ -109,7 +109,7 @@ endlessh_container_labels_additional_labels: "{{ endlessh_container_labels_addit
 endlessh_container_labels_additional_labels_auto: {}
 endlessh_container_labels_additional_labels_custom: {}
 
-# A list of extra arguments to pass to the container (`docker run` command)
+# A list of extra arguments to pass to the container (`docker create` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
 endlessh_container_extra_arguments_custom: []
 endlessh_container_extra_arguments_auto: []
