@@ -24,7 +24,7 @@ endlessh_gid: ""
 # The hostname at which Endlessh is served.
 endlessh_hostname: ""
 
-# The path at which Endlessh is exposed.
+# The path at which Endlessh is served.
 # This value must either be `/` or not end with a slash (e.g. `/endlessh-go`).
 endlessh_path_prefix: "/"
 
