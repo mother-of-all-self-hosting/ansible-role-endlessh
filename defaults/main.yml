@@ -103,11 +103,11 @@ endlessh_container_labels_traefik_additional_response_headers_custom: {}
 #
 # Example:
 # endlessh_container_labels_additional_labels_custom: |
-#   my.label=1
-#   another.label="here"
-endlessh_container_labels_additional_labels: "{{ endlessh_container_labels_additional_labels_auto | combine(endlessh_container_labels_additional_labels_custom) }}"
-endlessh_container_labels_additional_labels_auto: {}
-endlessh_container_labels_additional_labels_custom: {}
+#   - my.label=1
+#   - another.label="here"
+endlessh_container_labels_additional_labels: "{{ endlessh_container_labels_additional_labels_auto + endlessh_container_labels_additional_labels_custom }}"
+endlessh_container_labels_additional_labels_auto: []
+endlessh_container_labels_additional_labels_custom: []
 
 # A list of extra arguments to pass to the container (`docker create` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"

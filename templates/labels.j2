@@ -39,4 +39,6 @@ traefik.http.routers.{{ endlessh_identifier }}.tls.certResolver={{ endlessh_cont
 traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_http_port }}
 {% endif %}
 
-{{ endlessh_container_labels_additional_labels }}
+{% for arg in endlessh_container_labels_additional_labels %}
+{{ arg }}
+{% endfor %}
