@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Tiz
-# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -27,3 +27,24 @@
     - endlessh_uid
     - endlessh_gid
     - endlessh_container_network
+
+- name: Run if Traefik is enabled for metrics
+  when: endlessh_container_labels_traefik_enabled | bool
+  block:
+    - name: Fail if Traefik settings required for Endlessh are not defined
+      ansible.builtin.fail:
+        msg: >-
+          You need to define a required configuration setting (`{{ item }}`).
+      when: "lookup('vars', item, default='') | string | length == 0"
+      with_items:
+        - endlessh_container_labels_traefik_hostname
+        - endlessh_container_labels_traefik_path_prefix
+
+    # We ensure it doesn't end with a slash, because we handle both (slash and no-slash).
+    # Knowing that `endlessh_container_labels_traefik_path_prefix` does not end with a slash
+    # ensures we know how to set these routes up without having to do "does it end with a slash" checks elsewhere.
+    - name: Fail if endlessh_container_labels_traefik_path_prefix ends with a slash
+      ansible.builtin.fail:
+        msg: >-
+          endlessh_container_labels_traefik_path_prefix (`{{ endlessh_container_labels_traefik_path_prefix }}`) must either be `/` or not end with a slash (e.g. `/endlessh`).
+      when: "endlessh_container_labels_traefik_path_prefix != '/' and endlessh_container_labels_traefik_path_prefix[-1] == '/'"
