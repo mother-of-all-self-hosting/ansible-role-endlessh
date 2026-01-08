@@ -96,6 +96,10 @@ endlessh_container_labels_traefik_tcp_rule: "HostSNI(`*`)"
 endlessh_container_labels_traefik_tcp_priority: 0
 endlessh_container_labels_traefik_tcp_entrypoints: ssh-endlessh
 
+# Specify `serversTransport` for TCP router
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/tcp/serverstransport/
+endlessh_container_labels_traefik_loadbalancer_serverstransport: ""
+
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `endlessh_container_labels_traefik_additional_request_headers_custom`
 endlessh_container_labels_traefik_additional_request_headers: "{{ endlessh_container_labels_traefik_additional_request_headers_auto | combine(endlessh_container_labels_traefik_additional_request_headers_custom) }}"
@@ -134,6 +138,7 @@ endlessh_container_extra_arguments_custom: []
 endlessh_container_extra_arguments_auto:
   - -logtostderr
   - -v=1
+  - "{{ '-proxy_protocol_enabled' if endlessh_container_labels_traefik_tcp_enabled and endlessh_container_labels_traefik_loadbalancer_serverstransport != '' }}"
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
