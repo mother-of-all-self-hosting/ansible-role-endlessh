@@ -55,7 +55,7 @@ endlessh_enabled: true
 By default, the Endlessh-go instance binds to port 22 on all network interfaces. You can change the port by adding the following configuration to your `vars.yml` file:
 
 ```yaml
-endlessh_container_http_host_bind_port: YOUR_PORT_NUMBER_HERE
+endlessh_container_ssh_host_bind_port: YOUR_PORT_NUMBER_HERE
 ```
 
 ### Extending the configuration

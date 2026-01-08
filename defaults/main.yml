@@ -44,13 +44,22 @@ endlessh_container_image_self_build_src_files_path: "{{ endlessh_base_path }}/do
 # Controls whether the Endlessh container exposes its HTTP port.
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
-endlessh_container_http_host_bind_port: 22
+endlessh_container_http_host_bind_port: ""
+
+# Controls whether the Endlessh container exposes its SSH port.
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
+endlessh_container_ssh_host_bind_port: 22
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 endlessh_container_network: "{{ endlessh_identifier }}"
 
-# The port number in the container
-endlessh_container_http_port: 2222
+# The port number for HTTP in the container
+# See: https://github.com/shizunge/endlessh-go/blob/main/README.md
+endlessh_container_http_port: 2112
+
+# The port number for SSH in the container
+endlessh_container_ssh_port: 2222
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -59,7 +68,7 @@ endlessh_container_additional_networks: "{{ endlessh_container_additional_networ
 endlessh_container_additional_networks_auto: []
 endlessh_container_additional_networks_custom: []
 
-# endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy for HTTP will be attached to the container.
 # See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `endlessh_container_labels_additional_labels`.
@@ -76,6 +85,16 @@ endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
 endlessh_container_labels_metrics_middleware_basic_auth_users: ""
+
+# endlessh_container_labels_traefik_tcp_enabled controls whether labels to assist a Traefik reverse-proxy for SSH will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `endlessh_container_labels_additional_labels`.
+endlessh_container_labels_traefik_tcp_enabled: true
+endlessh_container_labels_traefik_tcp_docker_network: "{{ endlessh_container_network }}"
+endlessh_container_labels_traefik_tcp_rule: "HostSNI(`*`)"
+endlessh_container_labels_traefik_tcp_priority: 0
+endlessh_container_labels_traefik_tcp_entrypoints: ssh-endlessh
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `endlessh_container_labels_traefik_additional_request_headers_custom`
@@ -112,7 +131,9 @@ endlessh_container_labels_additional_labels_custom: []
 # A list of extra arguments to pass to the container (`docker create` command)
 endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
 endlessh_container_extra_arguments_custom: []
-endlessh_container_extra_arguments_auto: []
+endlessh_container_extra_arguments_auto:
+  - -logtostderr
+  - -v=1
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
