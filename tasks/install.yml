@@ -1,5 +1,6 @@
-# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Tiz
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -22,6 +23,7 @@
     owner: "{{ endlessh_uid }}"
     group: "{{ endlessh_gid }}"
   with_items:
+    - env
     - labels
 
 - name: Run if self-building of Endlessh container image is not enabled

@@ -34,6 +34,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% if endlessh_container_http_host_bind_port %}
       -p {{ endlessh_container_http_host_bind_port }}:{{ endlessh_container_http_port }} \
       {% endif %}
+      --env-file={{ endlessh_base_path }}/env \
       --label-file={{ endlessh_base_path }}/labels \
       {{ endlessh_container_image_self_build_name if endlessh_container_image_self_build else endlessh_container_image }} \
       {% for arg in endlessh_container_extra_arguments %}

@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
-# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2024 Tiz
 # SPDX-FileCopyrightText: 2025 MASH project contributors
-# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -177,3 +177,9 @@ endlessh_systemd_wanted_services_list_custom: []
 # This role doesn't make use of this variable, but you can hook this into other roles.
 endlessh_metrics_dashboard_urls:
   - "https://grafana.com/api/dashboards/15156/revisions/12/download"
+
+# Specify the timezone
+endlessh_environment_variables_tz: UTC
+
+# Additional environment variables.
+endlessh_environment_variables_additional_variables: ""
