@@ -80,11 +80,11 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, the instance starts running on the server and listens to the specified port (port 22 by default).
 
-You can customize how it works with the `endlessh_container_extra_arguments_custom` variable. For example, you can have it log to standard error instead of files by adding the following configuration:
+You can customize how it works with the `endlessh_container_extra_arguments_custom` variable. For example, you can specify supplier to obtain Geohash of IPs by adding the following configuration as below:
 
 ```yaml
 endlessh_container_extra_arguments_custom:
-  - "-logtostderr"
+  - "-geoip_supplier ip-api"
 ```
 
 See [this section](https://github.com/shizunge/endlessh-go/blob/main/README.md#usage) of the documentation for other available arguments.
