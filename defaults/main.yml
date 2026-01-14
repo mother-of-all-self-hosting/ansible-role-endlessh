@@ -43,12 +43,12 @@ endlessh_container_image_self_build_src_files_path: "{{ endlessh_base_path }}/do
 
 # Controls whether the Endlessh container exposes its HTTP port.
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 endlessh_container_http_host_bind_port: ""
 
 # Controls whether the Endlessh container exposes its SSH port.
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2112"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 endlessh_container_ssh_host_bind_port: 22
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
