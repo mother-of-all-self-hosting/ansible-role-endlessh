@@ -41,6 +41,9 @@ endlessh_container_image_self_build_repo: "https://github.com/shizunge/endlessh-
 endlessh_container_image_self_build_repo_version: "{{ endlessh_version if endlessh_version != 'latest' else 'main' }}"
 endlessh_container_image_self_build_src_files_path: "{{ endlessh_base_path }}/docker-src"
 
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+endlessh_container_network: "{{ endlessh_identifier }}"
+
 # Controls whether the container exposes its HTTP port.
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
@@ -50,9 +53,6 @@ endlessh_container_http_host_bind_port: ""
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 endlessh_container_ssh_host_bind_port: 22
-
-# The base container network. It will be auto-created by this role if it doesn't exist already.
-endlessh_container_network: "{{ endlessh_identifier }}"
 
 # The port number for HTTP in the container
 # See: https://github.com/shizunge/endlessh-go/blob/main/README.md
