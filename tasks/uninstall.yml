@@ -25,21 +25,24 @@
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ endlessh_identifier }}.service"
         state: absent
 
-    - name: Ensure Endlessh container network does not exist via community.docker.docker_network
-      when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
-      community.docker.docker_network:
-        name: "{{ endlessh_container_network }}"
-        state: absent
-      register: endlessh_network_deletion_result
+    - name: Ensure Endlessh container network does not exist
+      when: endlessh_container_network_deletion_enabled
+      block:
+        - name: Ensure Endlessh container network does not exist via community.docker.docker_network
+          when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
+          community.docker.docker_network:
+            name: "{{ endlessh_container_network }}"
+            state: absent
+          register: endlessh_network_deletion_result
 
-    - name: Ensure Endlessh container network does not exist via ansible.builtin.command
-      when: devture_systemd_docker_base_container_network_creation_method == 'command'
-      ansible.builtin.command:
-        cmd: >-
-          {{ devture_systemd_docker_base_host_command_docker }} network rm
-          {{ endlessh_container_network }}
-      register: endlessh_network_deletion_result
-      changed_when: endlessh_container_network in endlessh_network_deletion_result.stdout
+        - name: Ensure Endlessh container network does not exist via ansible.builtin.command
+          when: devture_systemd_docker_base_container_network_creation_method == 'command'
+          ansible.builtin.command:
+            cmd: >-
+              {{ devture_systemd_docker_base_host_command_docker }} network rm
+              {{ endlessh_container_network }}
+          register: endlessh_network_deletion_result
+          changed_when: endlessh_container_network in endlessh_network_deletion_result.stdout
 
     - name: Ensure Endlessh path does not exist
       ansible.builtin.file:
