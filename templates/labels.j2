@@ -1,5 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2024 Tiz
+SPDX-FileCopyrightText: 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -12,6 +13,11 @@ traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% if endlessh_container_labels_traefik_enabled %}
+############################################################
+#                                                          #
+# Metrics                                                  #
+#                                                          #
+############################################################
 
 {% set middlewares = [] %}
 
@@ -39,6 +45,12 @@ traefik.http.routers.{{ endlessh_identifier }}.tls.certResolver={{ endlessh_cont
 {% endif %}
 
 traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_http_port }}
+
+############################################################
+#                                                          #
+# /Metrics                                                 #
+#                                                          #
+############################################################
 {% endif %}
 
 {% if endlessh_container_labels_traefik_tcp_enabled and endlessh_container_ssh_host_bind_port %}
