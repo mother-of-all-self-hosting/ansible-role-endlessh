@@ -71,20 +71,20 @@ endlessh_container_additional_networks: "{{ endlessh_container_additional_networ
 endlessh_container_additional_networks_auto: []
 endlessh_container_additional_networks_custom: []
 
-# endlessh_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy for HTTP will be attached to the container.
+# endlessh_container_labels_metrics_enabled controls whether labels to assist a Traefik reverse-proxy for HTTP will be attached to the container.
 # See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `endlessh_container_labels_additional_labels_custom`.
-endlessh_container_labels_traefik_enabled: false
-endlessh_container_labels_traefik_docker_network: "{{ endlessh_container_network }}"
-endlessh_container_labels_traefik_hostname: "{{ endlessh_hostname }}"
+endlessh_container_labels_metrics_enabled: false
+endlessh_container_labels_metrics_docker_network: "{{ endlessh_container_network }}"
+endlessh_container_labels_metrics_hostname: "{{ endlessh_hostname }}"
 # The path prefix must either be `/` or not end with a slash (e.g. `/endlessh`).
-endlessh_container_labels_traefik_path_prefix: "{{ endlessh_path_prefix }}"
-endlessh_container_labels_traefik_rule: "Host(`{{ endlessh_container_labels_traefik_hostname }}`){% if endlessh_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ endlessh_container_labels_traefik_path_prefix }}`){% endif %}"
-endlessh_container_labels_traefik_priority: 0
-endlessh_container_labels_traefik_entrypoints: web-secure
-endlessh_container_labels_traefik_tls: "{{ endlessh_container_labels_traefik_entrypoints != 'web' }}"
-endlessh_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+endlessh_container_labels_metrics_path_prefix: "{{ endlessh_path_prefix }}"
+endlessh_container_labels_metrics_rule: "Host(`{{ endlessh_container_labels_metrics_hostname }}`){% if endlessh_container_labels_metrics_path_prefix != '/' %} && PathPrefix(`{{ endlessh_container_labels_metrics_path_prefix }}`){% endif %}"
+endlessh_container_labels_metrics_priority: 0
+endlessh_container_labels_metrics_entrypoints: web-secure
+endlessh_container_labels_metrics_tls: "{{ endlessh_container_labels_metrics_entrypoints != 'web' }}"
+endlessh_container_labels_metrics_tls_certResolver: default  # noqa var-naming
 endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
 endlessh_container_labels_metrics_middleware_basic_auth_users: ""
@@ -104,24 +104,24 @@ endlessh_container_labels_traefik_tcp_entrypoints: ssh-endlessh
 endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport: ""
 
 # Controls which additional headers to attach to all HTTP requests.
-# To add your own custom request headers, use `endlessh_container_labels_traefik_additional_request_headers_custom`
-endlessh_container_labels_traefik_additional_request_headers: "{{ endlessh_container_labels_traefik_additional_request_headers_auto | combine(endlessh_container_labels_traefik_additional_request_headers_custom) }}"
-endlessh_container_labels_traefik_additional_request_headers_auto: {}
-endlessh_container_labels_traefik_additional_request_headers_custom: {}
+# To add your own custom request headers, use `endlessh_container_labels_metrics_additional_request_headers_custom`
+endlessh_container_labels_metrics_additional_request_headers: "{{ endlessh_container_labels_metrics_additional_request_headers_auto | combine(endlessh_container_labels_metrics_additional_request_headers_custom) }}"
+endlessh_container_labels_metrics_additional_request_headers_auto: {}
+endlessh_container_labels_metrics_additional_request_headers_custom: {}
 
 # Controls which additional headers to attach to all HTTP responses.
-# To add your own custom response headers, use `endlessh_container_labels_traefik_additional_response_headers_custom`
-endlessh_container_labels_traefik_additional_response_headers: "{{ endlessh_container_labels_traefik_additional_response_headers_auto | combine(endlessh_container_labels_traefik_additional_response_headers_custom) }}"
-endlessh_container_labels_traefik_additional_response_headers_auto: |
+# To add your own custom response headers, use `endlessh_container_labels_metrics_additional_response_headers_custom`
+endlessh_container_labels_metrics_additional_response_headers: "{{ endlessh_container_labels_metrics_additional_response_headers_auto | combine(endlessh_container_labels_metrics_additional_response_headers_custom) }}"
+endlessh_container_labels_metrics_additional_response_headers_auto: |
   {{
     {}
     | combine ({'X-XSS-Protection': endlessh_http_header_xss_protection} if endlessh_http_header_xss_protection else {})
     | combine ({'X-Content-Type-Options': endlessh_http_header_content_type_options} if endlessh_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': endlessh_http_header_content_security_policy} if endlessh_http_header_content_security_policy else {})
     | combine ({'Permissions-Policy': endlessh_http_header_permissions_policy} if endlessh_http_header_permissions_policy else {})
-    | combine ({'Strict-Transport-Security': endlessh_http_header_strict_transport_security} if endlessh_http_header_strict_transport_security and endlessh_container_labels_traefik_tls else {})
+    | combine ({'Strict-Transport-Security': endlessh_http_header_strict_transport_security} if endlessh_http_header_strict_transport_security and endlessh_container_labels_metrics_tls else {})
   }}
-endlessh_container_labels_traefik_additional_response_headers_custom: {}
+endlessh_container_labels_metrics_additional_response_headers_custom: {}
 
 # endlessh_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
 # See `../templates/labels.j2` for details.
