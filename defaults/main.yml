@@ -75,6 +75,10 @@ endlessh_container_additional_networks_custom: []
 # See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `endlessh_container_labels_additional_labels_custom`.
+endlessh_container_labels_traefik_enabled: true
+endlessh_container_labels_traefik_docker_network: "{{ endlessh_container_network }}"
+
+# Control if labels are added to the container to assist a Traefik reverse-proxy for exposing the Prometheus metrics publicly.
 endlessh_container_labels_metrics_enabled: false
 endlessh_container_labels_metrics_docker_network: "{{ endlessh_container_network }}"
 endlessh_container_labels_metrics_hostname: "{{ endlessh_hostname }}"
@@ -89,7 +93,7 @@ endlessh_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
 endlessh_container_labels_metrics_middleware_basic_auth_users: ""
 
-# endlessh_container_labels_traefik_tcp_enabled controls whether labels to assist a Traefik reverse-proxy for SSH will be attached to the container.
+# Control if labels are added to the container to assist a Traefik reverse-proxy for SSH.
 # See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `endlessh_container_labels_additional_labels_custom`.

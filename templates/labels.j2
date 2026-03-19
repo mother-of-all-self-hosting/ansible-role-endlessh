@@ -5,11 +5,11 @@ SPDX-FileCopyrightText: 2026 Suguru Hirahara
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
-{% if endlessh_container_labels_metrics_enabled or endlessh_container_labels_traefik_tcp_enabled %}
+{% if endlessh_container_labels_traefik_enabled %}
 traefik.enable=true
 
-{% if endlessh_container_labels_metrics_docker_network %}
-traefik.docker.network={{ endlessh_container_labels_metrics_docker_network }}
+{% if endlessh_container_labels_traefik_docker_network %}
+traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% if endlessh_container_labels_metrics_enabled %}
