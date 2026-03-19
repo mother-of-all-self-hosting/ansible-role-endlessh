@@ -17,6 +17,7 @@
     - { "old": "endlessh_http_header_content_permission_policy", "new": "endlessh_http_header_permissions_policy" }
     - { "old": "endlessh_container_labels_middleware_basic_auth_enabled", "new": "endlessh_container_labels_metrics_middleware_basic_auth_enabled" }
     - { "old": "endlessh_container_labels_middleware_basic_auth_users", "new": "endlessh_container_labels_metrics_middleware_basic_auth_users" }
+    - { "old": "endlessh_container_labels_traefik_loadbalancer_serverstransport", "new": "endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport" }
 
 - name: Fail if required Endlessh settings not defined
   ansible.builtin.fail:

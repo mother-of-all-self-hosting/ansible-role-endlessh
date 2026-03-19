@@ -52,7 +52,7 @@ traefik.tcp.routers.{{ endlessh_identifier }}.entrypoints={{ endlessh_container_
 
 traefik.tcp.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_ssh_port }}
 
-traefik.tcp.services.{{ endlessh_identifier }}.loadbalancer.serversTransport={{ endlessh_container_labels_traefik_loadbalancer_serverstransport }}
+traefik.tcp.services.{{ endlessh_identifier }}.loadbalancer.serversTransport={{ endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport }}
 {% endif %}
 
 {% endif %}
