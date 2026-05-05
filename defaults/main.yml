@@ -33,7 +33,6 @@ endlessh_container_image_tag: "{{ endlessh_version }}"
 endlessh_container_image_registry_prefix: "{{ endlessh_container_image_registry_prefix_upstream }}"
 endlessh_container_image_registry_prefix_upstream: "{{ endlessh_container_image_registry_prefix_upstream_default }}"
 endlessh_container_image_registry_prefix_upstream_default: docker.io/
-endlessh_container_image_force_pull: "{{ endlessh_container_image.endswith(':latest') }}"
 
 endlessh_container_image_self_build: false
 endlessh_container_image_self_build_name: "shizunge/endlessh-go:{{ endlessh_container_image_self_build_repo_version }}"
