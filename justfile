@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2023 - 2024 Aine
-# SPDX-FileCopyrightText: 2023 - 2026 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023, 2024 Aine
+# SPDX-FileCopyrightText: 2023-2026 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Nikita Chernyi
 # SPDX-FileCopyrightText: 2024 Tiz
 # SPDX-FileCopyrightText: 2025 Guillaume MASSON
