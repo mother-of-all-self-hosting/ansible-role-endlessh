@@ -15,10 +15,18 @@
     - { "old": "endlessh_server_http_listen_port", "new": "endlessh_container_http_port" }
     - { "old": "endlessh_container_host_bind_port", "new": "endlessh_container_http_host_bind_port" }
     - { "old": "endlessh_http_header_content_permission_policy", "new": "endlessh_http_header_permissions_policy" }
-    - { "old": "endlessh_container_labels_middleware_basic_auth_enabled", "new": "endlessh_container_labels_metrics_middleware_basic_auth_enabled" }
-    - { "old": "endlessh_container_labels_middleware_basic_auth_users", "new": "endlessh_container_labels_metrics_middleware_basic_auth_users" }
+    - { "old": "endlessh_container_labels_middleware_basic_auth_enabled", "new": "endlessh_container_labels_traefik_metrics_middleware_basic_auth_enabled" }
+    - { "old": "endlessh_container_labels_middleware_basic_auth_users", "new": "endlessh_container_labels_traefik_metrics_middleware_basic_auth_users" }
     - { "old": "endlessh_container_labels_traefik_loadbalancer_serverstransport", "new": "endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport" }
     - { "old": "endlessh_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
+
+- name: (Deprecation) Catch and report renamed settings
+  ansible.builtin.fail:
+    msg: |-
+      Please change your configuration file (vars.yml) to rename all `endlessh_container_labels_metrics_`-prefixed variables (`endlessh_container_labels_metrics_*` -> `endlessh_container_labels_traefik_metrics_*`).
+
+      The following variables in your configuration need to be renamed: {{ lookup('ansible.builtin.varnames', '^endlessh_container_labels_metrics_.+', wantlist=True) | join(', ') }}
+  when: "lookup('ansible.builtin.varnames', '^endlessh_container_labels_metrics_.+', wantlist=True) | length > 0"
 
 - name: Fail if required Endlessh settings not defined
   ansible.builtin.fail:
@@ -31,7 +39,7 @@
     - endlessh_container_network
 
 - name: Run if Traefik is enabled for metrics
-  when: endlessh_container_labels_metrics_enabled | bool
+  when: endlessh_container_labels_traefik_metrics_enabled | bool
   block:
     - name: Fail if Traefik settings required for Endlessh are not defined
       ansible.builtin.fail:
@@ -39,15 +47,15 @@
           You need to define a required configuration setting (`{{ item.name }}`).
       when: "item.when | bool and lookup('vars', item.name, default='') | string | length == 0"
       with_items:
-        - { "name": "endlessh_container_labels_metrics_hostname", when: true }
-        - { "name": "endlessh_container_labels_metrics_path_prefix", when: true }
-        - { "name": "endlessh_container_labels_metrics_middleware_basic_auth_users", when: "{{ endlessh_container_labels_metrics_middleware_basic_auth_enabled }}" }
+        - { "name": "endlessh_container_labels_traefik_metrics_hostname", when: true }
+        - { "name": "endlessh_container_labels_traefik_metrics_path_prefix", when: true }
+        - { "name": "endlessh_container_labels_traefik_metrics_middleware_basic_auth_users", when: "{{ endlessh_container_labels_traefik_metrics_middleware_basic_auth_enabled }}" }
 
     # We ensure it doesn't end with a slash, because we handle both (slash and no-slash).
-    # Knowing that `endlessh_container_labels_metrics_path_prefix` does not end with a slash
+    # Knowing that `endlessh_container_labels_traefik_metrics_path_prefix` does not end with a slash
     # ensures we know how to set these routes up without having to do "does it end with a slash" checks elsewhere.
-    - name: Fail if endlessh_container_labels_metrics_path_prefix ends with a slash
+    - name: Fail if endlessh_container_labels_traefik_metrics_path_prefix ends with a slash
       ansible.builtin.fail:
         msg: >-
-          endlessh_container_labels_metrics_path_prefix (`{{ endlessh_container_labels_metrics_path_prefix }}`) must either be `/` or not end with a slash (e.g. `/endlessh`).
-      when: "endlessh_container_labels_metrics_path_prefix != '/' and endlessh_container_labels_metrics_path_prefix[-1] == '/'"
+          endlessh_container_labels_traefik_metrics_path_prefix (`{{ endlessh_container_labels_traefik_metrics_path_prefix }}`) must either be `/` or not end with a slash (e.g. `/endlessh`).
+      when: "endlessh_container_labels_traefik_metrics_path_prefix != '/' and endlessh_container_labels_traefik_metrics_path_prefix[-1] == '/'"
