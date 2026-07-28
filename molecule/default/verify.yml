@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify Endlessh systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for Endlessh service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: endlessh.service
+      register: endlessh_service
+      until: endlessh_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert Endlessh service is active
+      ansible.builtin.assert:
+        that: endlessh_service.status.ActiveState == 'active'
+        fail_msg: "endlessh.service not active ({{ endlessh_service.status.ActiveState }})"
+        success_msg: "endlessh.service is active"
+
+    - name: Retrieve Endlessh service log for debugging
+      when: endlessh_debug_service_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu endlessh.service
+      changed_when: false
+
+    - name: Show Endlessh systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "Endlessh systemd: {{ endlessh_service.status.ActiveState }}"
