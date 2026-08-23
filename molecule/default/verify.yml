@@ -1,14 +1,127 @@
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
 # SPDX-FileCopyrightText: 2026 spatterlight
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Verify Endlessh systemd service
+- name: Verify Endlessh
   hosts: all
   become: true
   gather_facts: false
+
+  vars:
+    # The name of the throwaway container that `verify.yml` starts from the
+    # very same image, with no arguments at all, as a negative control.
+    endlessh_molecule_baseline_container_name: endlessh-molecule-default-baseline
+
+    # How long each probe stays connected. Long enough to collect dozens of
+    # banner lines at the configured 250 ms interval and a dozen at the image
+    # default of 1000 ms, short enough not to dominate the test run.
+    endlessh_molecule_probe_window_seconds: 12
+
+    # Speaks to an endlessh-go instance the way a real SSH client would: it
+    # opens a TCP connection and waits to be greeted.
+    #
+    # A tarpit never greets and never hangs up, so every wait in here is
+    # bounded by the probe itself - nothing on the other end will ever end the
+    # conversation. What comes back is reported as JSON, and asserted on below.
+    #
+    # The banner lines are measured rather than merely counted: their arrival
+    # times carry endlessh-go's `-interval_ms` and their lengths its
+    # `-line_length`, so this is what turns "a container is listening" into
+    # "the process is running the configuration this role wrote".
+    endlessh_molecule_probe_script: |
+      import json
+      import socket
+      import sys
+      import time
+
+      host = sys.argv[1]
+      port = int(sys.argv[2])
+      window = float(sys.argv[3])
+
+      # The tarpit is reached over a freshly published port, which may need a
+      # moment to start accepting. Bounded, like everything else in here.
+      connect_deadline = time.monotonic() + 30
+      sock = None
+      while sock is None and time.monotonic() < connect_deadline:
+          try:
+              sock = socket.create_connection((host, port), timeout=5)
+          except OSError:
+              time.sleep(1)
+
+      if sock is None:
+          print(json.dumps({"connected": False, "line_count": 0}))
+          sys.exit(0)
+
+      lengths = []
+      stamps = []
+      first_line = None
+      pending = b""
+      eof = False
+      deadline = time.monotonic() + window
+
+      try:
+          while True:
+              remaining = deadline - time.monotonic()
+              if remaining <= 0:
+                  break
+              sock.settimeout(remaining)
+              try:
+                  chunk = sock.recv(4096)
+              except socket.timeout:
+                  break
+              if not chunk:
+                  # The peer closed the connection. A tarpit never does.
+                  eof = True
+                  break
+              arrived = time.monotonic()
+              pending += chunk
+              while b"\n" in pending:
+                  line, pending = pending.split(b"\n", 1)
+                  if first_line is None:
+                      first_line = line
+                  lengths.append(len(line))
+                  stamps.append(arrived)
+      finally:
+          sock.close()
+
+      # Averaged over the whole observation rather than taken pair by pair, so
+      # that a slow reader batching several lines into one read does not skew
+      # the result.
+      if len(stamps) > 1:
+          mean_gap = round((stamps[-1] - stamps[0]) / (len(stamps) - 1), 3)
+      else:
+          mean_gap = -1
+
+      print(json.dumps({
+          "connected": True,
+          "eof": eof,
+          "line_count": len(lengths),
+          "max_line_length": max(lengths) if lengths else -1,
+          "mean_gap_seconds": mean_gap,
+          "first_line": repr(first_line),
+          # RFC 4253 has an SSH server greet with an `SSH-2.0-...` identification
+          # string of at most 255 bytes. A tarpit sends neither.
+          "looks_like_ssh": bool(first_line is not None and first_line.startswith(b"SSH-")),
+      }))
+
   tasks:
+    # Role defaults are not in scope in a verifier play, but the version that
+    # Renovate bumps lives in them and is what the running container is checked
+    # against below.
+    #
+    # Loaded under a name of its own: variables loaded into the play outrank the
+    # scenario's inventory group_vars and would quietly undo everything the
+    # scenario configures. Only leaf literals are read out of it - anything
+    # derived would resolve against the role defaults rather than against what
+    # this scenario asked for.
+    - name: Load the Endlessh role defaults
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+        name: endlessh_defaults
+
     - name: Wait for Endlessh service to become active (up to 180s)
       ansible.builtin.systemd:
         name: endlessh.service
@@ -29,7 +142,221 @@
         cmd: journalctl -xeu endlessh.service
       changed_when: false
 
-    - name: Show Endlessh systemd service status summary
+    # Everything below talks to a container over the network, which only proves
+    # that something is answering. Reading the container back is what says it is
+    # the image this role installs.
+    #
+    # The image declares a HEALTHCHECK that queries endlessh-go's own healthcheck
+    # server, which this scenario switched on, so waiting for `healthy` also
+    # confirms that a flag the scenario passed was read by the process - from
+    # inside the container, over a listener of its own.
+    #
+    # Run through the docker CLI rather than community.docker.docker_container,
+    # because the ansible-lint environment used by pre-commit does not have the
+    # community.docker collection and would fail the syntax check. Asked without
+    # `--format`, so that the whole document comes back to be parsed here.
+    - name: Wait for the Endlessh container to report itself healthy (up to 120s)
+      ansible.builtin.command:
+        cmd: docker inspect {{ endlessh_defaults.endlessh_identifier }}
+      register: endlessh_container_inspect
+      changed_when: false
+      until: (endlessh_container_inspect.stdout | from_json)[0].State.Health.Status | default('') == 'healthy'
+      retries: 24
+      delay: 5
+
+    - name: Assert the Endlessh container runs the image version this role installs
+      vars:
+        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
+      ansible.builtin.assert:
+        that:
+          - endlessh_container_state.State.Running | bool
+          - endlessh_container_state.State.Health.Status == 'healthy'
+          - endlessh_container_state.Config.Image.split(':') | last == endlessh_defaults.endlessh_version | string
+        fail_msg: "Unexpected container state: image {{ endlessh_container_state.Config.Image }}, health {{ endlessh_container_state.State.Health.Status | default('none') }}"
+        success_msg: "The container is healthy and runs {{ endlessh_container_state.Config.Image }}"
+
+    # The negative control, started before anything is claimed about the role's
+    # own instance: the very same image, with no arguments, so that it runs on
+    # endlessh-go's own defaults.
+    #
+    # Without it, "the banner drips once every 250 ms" would only show that some
+    # endlessh-go is running. The baseline drips once every 1000 ms from the same
+    # image, so the difference can only come from the configuration this role
+    # rendered into the systemd unit.
+    #
+    # Attached to the role's own container network, which is where consumers of
+    # this role reach it, and published on a port of its own so that the probe
+    # can tell the two instances apart.
+    # A failing assertion between the two leaves the container behind, and the
+    # next `molecule verify` against the same instance would then fail to
+    # create it rather than reporting whatever actually broke.
+    - name: Ensure no standalone Endlessh container is left over from an earlier run
+      ansible.builtin.command:
+        cmd: docker rm --force {{ endlessh_molecule_baseline_container_name }}
+      register: endlessh_baseline_leftover
+      changed_when: endlessh_molecule_baseline_container_name in endlessh_baseline_leftover.stdout
+      failed_when: false
+
+    - name: Start a standalone Endlessh container as a negative control
+      vars:
+        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
+      ansible.builtin.command:
+        cmd: >-
+          docker run --detach --rm
+          --name={{ endlessh_molecule_baseline_container_name }}
+          --network={{ endlessh_container_network }}
+          --publish=127.0.0.1:{{ endlessh_molecule_baseline_ssh_bind_port }}:{{ endlessh_defaults.endlessh_container_ssh_port }}
+          {{ endlessh_container_state.Config.Image }}
+      changed_when: true
+
+    - name: Probe the standalone Endlessh container
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - "{{ endlessh_molecule_probe_script }}"
+          - 127.0.0.1
+          - "{{ endlessh_molecule_baseline_ssh_bind_port }}"
+          - "{{ endlessh_molecule_probe_window_seconds }}"
+      register: endlessh_baseline_probe
+      changed_when: false
+
+    - name: Show the standalone Endlessh probe result
+      ansible.builtin.debug:
+        msg: "{{ endlessh_baseline_probe.stdout | from_json }}"
+
+    - name: Assert the standalone Endlessh container tarpits on the image defaults
+      vars:
+        endlessh_baseline: "{{ endlessh_baseline_probe.stdout | from_json }}"
+      ansible.builtin.assert:
+        that:
+          - endlessh_baseline.connected | bool
+          - not endlessh_baseline.eof | bool
+          - not endlessh_baseline.looks_like_ssh | bool
+          - endlessh_baseline.line_count >= 5
+          - endlessh_baseline.max_line_length <= 32
+          - endlessh_baseline.mean_gap_seconds >= 0.7
+          - endlessh_baseline.mean_gap_seconds <= 1.6
+        fail_msg: "A standalone endlessh-go did not behave like one: {{ endlessh_baseline }}"
+        success_msg: "A standalone endlessh-go drips every {{ endlessh_baseline.mean_gap_seconds }}s, as the image defaults to"
+
+    # The role's own instance, probed the same way. This is the whole point of
+    # the role: a connection that is never greeted, never answered and never
+    # closed, fed an endless banner.
+    - name: Probe the Endlessh tarpit installed by the role
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - "{{ endlessh_molecule_probe_script }}"
+          - 127.0.0.1
+          - "{{ endlessh_molecule_ssh_bind_port }}"
+          - "{{ endlessh_molecule_probe_window_seconds }}"
+      register: endlessh_probe
+      changed_when: false
+
+    - name: Show the Endlessh probe result
+      ansible.builtin.debug:
+        msg: "{{ endlessh_probe.stdout | from_json }}"
+
+    - name: Assert Endlessh traps the connection instead of speaking SSH
+      vars:
+        endlessh_trap: "{{ endlessh_probe.stdout | from_json }}"
+      ansible.builtin.assert:
+        that:
+          - endlessh_trap.connected | bool
+          # Never hanging up is what makes it a tarpit rather than a closed port.
+          - not endlessh_trap.eof | bool
+          - not endlessh_trap.looks_like_ssh | bool
+          - endlessh_trap.line_count >= 20
+          # Comfortably below the 255-byte cap RFC 4253 puts on the identification
+          # string, so a real SSH client keeps waiting for a line that never ends.
+          - endlessh_trap.max_line_length < 255
+        fail_msg: "Endlessh did not trap the connection: {{ endlessh_trap }}"
+        success_msg: "Endlessh held the connection open and sent {{ endlessh_trap.line_count }} banner lines that are not an SSH identification string"
+
+    # What the scenario asked for, observed from the other end of a socket:
+    # a quarter-second drip instead of the image's one second, and lines capped
+    # at 12 bytes instead of 32. Neither value can be reached without the flags
+    # travelling from `endlessh_container_extra_arguments_custom` through the
+    # rendered systemd unit into the running process.
+    - name: Assert the configured drip interval and line length reached the process
+      vars:
+        endlessh_trap: "{{ endlessh_probe.stdout | from_json }}"
+        endlessh_baseline: "{{ endlessh_baseline_probe.stdout | from_json }}"
+        endlessh_expected_gap: "{{ (endlessh_molecule_interval_ms | int) / 1000 }}"
+      ansible.builtin.assert:
+        that:
+          - endlessh_trap.mean_gap_seconds >= (endlessh_expected_gap | float) * 0.6
+          - endlessh_trap.mean_gap_seconds <= (endlessh_expected_gap | float) * 1.8
+          - endlessh_trap.max_line_length <= endlessh_molecule_line_length | int
+          # Both directions of the same evidence: the configured instance drips
+          # visibly faster than the same image left to its own defaults.
+          - endlessh_trap.mean_gap_seconds * 2 < endlessh_baseline.mean_gap_seconds
+          - endlessh_trap.line_count > endlessh_baseline.line_count
+        fail_msg: "Expected a {{ endlessh_expected_gap }}s drip of lines up to {{ endlessh_molecule_line_length }} bytes, got {{ endlessh_trap }} against a baseline of {{ endlessh_baseline }}"
+        success_msg: "Endlessh drips every {{ endlessh_trap.mean_gap_seconds }}s in lines of up to {{ endlessh_trap.max_line_length }} bytes, against {{ endlessh_baseline.mean_gap_seconds }}s on the image defaults"
+
+    - name: Ensure the standalone Endlessh container is gone
+      ansible.builtin.command:
+        cmd: docker rm --force {{ endlessh_molecule_baseline_container_name }}
+      changed_when: true
+
+    # A second, independent listener inside the same process, switched on by a
+    # flag this scenario passed. Its counters are also where the probe's own
+    # connection shows up, which ties the traffic above to this process rather
+    # than to anything else that might have answered on the published port.
+    - name: Query the Endlessh Prometheus exporter
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ endlessh_molecule_metrics_bind_port }}/metrics"
+        method: GET
+        return_content: true
+      register: endlessh_metrics
+      until: endlessh_metrics.status == 200
+      retries: 12
+      delay: 5
+
+    - name: Assert Endlessh counted the trapped connection
+      vars:
+        endlessh_metric_lines: "{{ endlessh_metrics.content.splitlines() | reject('match', '#') | list }}"
+        endlessh_open_count_line: "{{ endlessh_metric_lines | select('match', 'endlessh_client_open_count_total') | first | default('') }}"
+        endlessh_sent_bytes_line: "{{ endlessh_metric_lines | select('match', 'endlessh_sent_bytes_total') | first | default('') }}"
+      ansible.builtin.assert:
+        that:
+          - endlessh_open_count_line | length > 0
+          - endlessh_sent_bytes_line | length > 0
+          - endlessh_open_count_line.split(' ') | last | int >= 1
+          - endlessh_sent_bytes_line.split(' ') | last | int > 0
+        fail_msg: "Endlessh did not report the trapped connection: '{{ endlessh_open_count_line }}' / '{{ endlessh_sent_bytes_line }}'"
+        success_msg: "Endlessh reports {{ endlessh_open_count_line.split(' ') | last }} trapped client(s) and {{ endlessh_sent_bytes_line.split(' ') | last }} bytes sent"
+
+    # The process writes to stderr, the systemd unit attaches to the container,
+    # and journald keeps the output under the unit's name. Finding the probe's
+    # own connection there closes the loop from the socket back to the systemd
+    # service this role installed.
+    - name: Retrieve the Endlessh service log
+      ansible.builtin.command:
+        cmd: journalctl --no-pager --unit=endlessh.service
+      register: endlessh_journal
+      changed_when: false
+
+    - name: Assert Endlessh logged its listener and the trapped connection
+      ansible.builtin.assert:
+        that:
+          - "'Listening on 0.0.0.0:' ~ endlessh_defaults.endlessh_container_ssh_port in endlessh_journal.stdout"
+          - "'ACCEPT host=' in endlessh_journal.stdout"
+        fail_msg: "The Endlessh service log does not show a listener and an accepted connection"
+        success_msg: "The Endlessh service log shows the listener and the trapped connection"
+
+    - name: Show Endlessh verification summary
+      vars:
+        endlessh_trap: "{{ endlessh_probe.stdout | from_json }}"
+        endlessh_baseline: "{{ endlessh_baseline_probe.stdout | from_json }}"
+        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
       ansible.builtin.debug:
         msg:
           - "Endlessh systemd: {{ endlessh_service.status.ActiveState }}"
+          - "Endlessh container: {{ endlessh_container_state.Config.Image }} ({{ endlessh_container_state.State.Health.Status }})"
+          - "Endlessh tarpit: {{ endlessh_trap.line_count }} lines, up to {{ endlessh_trap.max_line_length }} bytes, every {{ endlessh_trap.mean_gap_seconds }}s"
+          - "Standalone image baseline: {{ endlessh_baseline.line_count }} lines, up to {{ endlessh_baseline.max_line_length }} bytes, every {{ endlessh_baseline.mean_gap_seconds }}s"
+          - "Endlessh first banner line: {{ endlessh_trap.first_line }}"

@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
 # SPDX-FileCopyrightText: 2026 spatterlight
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -31,9 +32,59 @@ provisioner:
         # Helper variables
         endlessh_debug_service_enabled: false
 
+        # The port on the host that the tarpit is published on. With its
+        # defaults the role publishes no SSH port at all (it expects Traefik to
+        # route TCP to the container), so the scenario turns the Traefik TCP
+        # router off and asks for a published port instead - see
+        # `endlessh_container_labels_traefik_tcp_enabled` below.
+        endlessh_molecule_ssh_bind_port: 2222
+
+        # The port on the host that the same image, started standalone with no
+        # arguments at all, is published on. `verify.yml` probes it as a
+        # negative control, to tell behavior that the role configured apart
+        # from behavior every endlessh-go container has.
+        endlessh_molecule_baseline_ssh_bind_port: 2223
+
+        # The port on the host that the Prometheus exporter is published on.
+        endlessh_molecule_metrics_bind_port: 2112
+
+        # The banner drip settings the scenario asks for. Both differ from
+        # endlessh-go's own defaults (1000 ms and 32), which is what lets
+        # `verify.yml` tell a process that read this role's configuration apart
+        # from one running on the image defaults.
+        endlessh_molecule_interval_ms: 250
+        endlessh_molecule_line_length: 12
+
         # Variables for Endlessh
         endlessh_uid: 1000
         endlessh_gid: 1000
+
+        # Pinned to a literal value, because `verify.yml` attaches the negative
+        # control container to this network and cannot resolve the role's own
+        # default (which is derived from `endlessh_identifier`).
+        endlessh_container_network: endlessh
+
+        # No Traefik runs in this scenario. Turning the TCP router off is also
+        # what makes the systemd unit publish the SSH port on the host, which
+        # is how `verify.yml` reaches the tarpit.
+        endlessh_container_labels_traefik_enabled: false
+        endlessh_container_labels_traefik_tcp_enabled: false
+
+        endlessh_container_ssh_host_bind_port: "127.0.0.1:{{ endlessh_molecule_ssh_bind_port }}"
+        endlessh_container_http_host_bind_port: "127.0.0.1:{{ endlessh_molecule_metrics_bind_port }}"
+
+        # These are appended after the image name in the systemd unit, so they
+        # are endlessh-go's own flags rather than `docker create` arguments.
+        #
+        # The role's defaults enable neither the Prometheus exporter nor the
+        # healthcheck server, even though the image declares a HEALTHCHECK that
+        # queries the latter. Both are switched on here so that `verify.yml`
+        # can observe them.
+        endlessh_container_extra_arguments_custom:
+          - "-interval_ms={{ endlessh_molecule_interval_ms }}"
+          - "-line_length={{ endlessh_molecule_line_length }}"
+          - -prometheus_enabled
+          - -healthcheck_enabled
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles

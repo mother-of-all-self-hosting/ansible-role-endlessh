@@ -47,7 +47,7 @@ Currently there is one testing scenario available.
 
 ### `default`
 
-Tests a standard Endlessh installation.
+Installs Endlessh, then connects to the tarpit the way an SSH client would and watches what comes back: the connection is never closed, the banner lines are not an SSH identification string, and they arrive at the interval and in the length that the scenario configured rather than at the ones the image defaults to. The same image is also started standalone, with no arguments, as a negative control for that comparison. The Prometheus exporter and the service log are then checked for the very connection the probe made.
 
 ## Running
 
