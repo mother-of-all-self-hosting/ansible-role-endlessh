@@ -108,16 +108,10 @@
       }))
 
   tasks:
-    # Role defaults are not in scope in a verifier play, but the version that
-    # Renovate bumps lives in them and is what the running container is checked
-    # against below.
-    #
-    # Loaded under a name of its own: variables loaded into the play outrank the
-    # scenario's inventory group_vars and would quietly undo everything the
-    # scenario configures. Only leaf literals are read out of it - anything
-    # derived would resolve against the role defaults rather than against what
-    # this scenario asked for.
-    - name: Load the Endlessh role defaults
+    # The role is not included in this playbook, so its defaults are not in
+    # scope. Reading defaults/main.yml directly ties the version assertion
+    # below.
+    - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: endlessh_defaults
