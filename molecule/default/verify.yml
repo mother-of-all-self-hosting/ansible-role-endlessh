@@ -348,7 +348,7 @@
         fail_msg: "The Endlessh service log does not show a listener and an accepted connection"
         success_msg: "The Endlessh service log shows the listener and the trapped connection"
 
-    - name: Show Endlessh verification summary
+    - name: Show the Endlessh verification summary
       vars:
         endlessh_trap: "{{ endlessh_probe.stdout | from_json }}"
         endlessh_baseline: "{{ endlessh_baseline_probe.stdout | from_json }}"
