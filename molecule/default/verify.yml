@@ -152,15 +152,15 @@
     - name: Wait for the Endlessh container to report itself healthy (up to 120s)
       ansible.builtin.command:
         cmd: docker container inspect {{ endlessh_defaults.endlessh_identifier }}
-      register: endlessh_container_inspect
+      register: endlessh_container_raw
       changed_when: false
-      until: (endlessh_container_inspect.stdout | from_json)[0].State.Health.Status | default('') == 'healthy'
+      until: (endlessh_container_raw.stdout | from_json)[0].State.Health.Status | default('') == 'healthy'
       retries: 24
       delay: 5
 
     - name: Assert the Endlessh container runs the image version this role installs
       vars:
-        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
+        endlessh_container_state: "{{ (endlessh_container_raw.stdout | from_json)[0] }}"
       ansible.builtin.assert:
         that:
           - endlessh_container_state.State.Running | bool
@@ -193,7 +193,7 @@
 
     - name: Start a standalone Endlessh container as a negative control
       vars:
-        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
+        endlessh_container_state: "{{ (endlessh_container_raw.stdout | from_json)[0] }}"
       ansible.builtin.command:
         cmd: >-
           docker run --detach --rm
@@ -346,7 +346,7 @@
       vars:
         endlessh_trap: "{{ endlessh_probe.stdout | from_json }}"
         endlessh_baseline: "{{ endlessh_baseline_probe.stdout | from_json }}"
-        endlessh_container_state: "{{ (endlessh_container_inspect.stdout | from_json)[0] }}"
+        endlessh_container_state: "{{ (endlessh_container_raw.stdout | from_json)[0] }}"
       ansible.builtin.debug:
         msg:
           - "Endlessh systemd: {{ endlessh_service.status.ActiveState }}"
