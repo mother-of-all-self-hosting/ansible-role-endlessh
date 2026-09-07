@@ -116,21 +116,27 @@
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: endlessh_defaults
 
-    - name: Wait for Endlessh service to become active (up to 180s)
-      ansible.builtin.systemd:
+    - name: Wait for the Endlessh systemd service to become active (up to 180s)
+      ansible.builtin.systemd_service:
         name: endlessh.service
       register: endlessh_service
       until: endlessh_service.status.ActiveState == 'active'
       retries: 36
       delay: 5
+      # So that giving up is reported by the assertion below rather than as a
+      # wall of systemd unit properties.
+      failed_when: false
 
-    - name: Assert Endlessh service is active
+    # `Restart=always` in the systemd unit means that even a container which crashes
+    # and gets restarted reads as active here, so this is a precondition rather than
+    # a result.
+    - name: Assert the Endlessh systemd service is active
       ansible.builtin.assert:
         that: endlessh_service.status.ActiveState == 'active'
-        fail_msg: "endlessh.service not active ({{ endlessh_service.status.ActiveState }})"
+        fail_msg: "endlessh.service is not active ({{ endlessh_service.status.ActiveState }})"
         success_msg: "endlessh.service is active"
 
-    - name: Retrieve Endlessh service log for debugging
+    - name: Retrieve the Endlessh systemd service log for debugging
       when: endlessh_debug_service_enabled | bool
       ansible.builtin.command:
         cmd: journalctl -xeu endlessh.service
@@ -328,7 +334,7 @@
     # and journald keeps the output under the unit's name. Finding the probe's
     # own connection there closes the loop from the socket back to the systemd
     # service this role installed.
-    - name: Retrieve the Endlessh service log
+    - name: Retrieve the Endlessh systemd service log
       ansible.builtin.command:
         cmd: journalctl --no-pager --unit=endlessh.service
       register: endlessh_journal
@@ -339,8 +345,8 @@
         that:
           - "'Listening on 0.0.0.0:' ~ endlessh_defaults.endlessh_container_ssh_port in endlessh_journal.stdout"
           - "'ACCEPT host=' in endlessh_journal.stdout"
-        fail_msg: "The Endlessh service log does not show a listener and an accepted connection"
-        success_msg: "The Endlessh service log shows the listener and the trapped connection"
+        fail_msg: "The Endlessh systemd service log does not show a listener and an accepted connection"
+        success_msg: "The Endlessh systemd service log shows the listener and the trapped connection"
 
     - name: Show the Endlessh verification summary
       vars:
