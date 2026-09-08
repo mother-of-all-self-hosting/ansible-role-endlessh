@@ -202,7 +202,7 @@
         endlessh_container_state: "{{ (endlessh_container_raw.stdout | from_json)[0] }}"
       ansible.builtin.command:
         cmd: >-
-          docker run --detach --rm
+          docker run -d --rm
           --name={{ endlessh_molecule_baseline_container_name }}
           --network={{ endlessh_container_network }}
           --publish=127.0.0.1:{{ endlessh_molecule_baseline_ssh_bind_port }}:{{ endlessh_defaults.endlessh_container_ssh_port }}
