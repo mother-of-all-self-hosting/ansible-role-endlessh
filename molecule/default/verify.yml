@@ -139,7 +139,7 @@
     - name: Retrieve the Endlessh systemd service log for debugging
       when: endlessh_debug_service_enabled | bool
       ansible.builtin.command:
-        cmd: journalctl -xeu endlessh.service
+        cmd: journalctl --no-pager --output=cat --unit=endlessh.service
       changed_when: false
 
     # Everything below talks to a container over the network, which only proves
@@ -336,7 +336,7 @@
     # service this role installed.
     - name: Retrieve the Endlessh systemd service log
       ansible.builtin.command:
-        cmd: journalctl --no-pager --unit=endlessh.service
+        cmd: journalctl --no-pager --output=cat --unit=endlessh.service
       register: endlessh_journal
       changed_when: false
 
