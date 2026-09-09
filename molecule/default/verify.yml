@@ -108,6 +108,8 @@
       }))
 
   tasks:
+    - name: Verify that Endlessh works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -360,3 +362,19 @@
           - "Endlessh tarpit: {{ endlessh_trap.line_count }} lines, up to {{ endlessh_trap.max_line_length }} bytes, every {{ endlessh_trap.mean_gap_seconds }}s"
           - "Standalone image baseline: {{ endlessh_baseline.line_count }} lines, up to {{ endlessh_baseline.max_line_length }} bytes, every {{ endlessh_baseline.mean_gap_seconds }}s"
           - "Endlessh first banner line: {{ endlessh_trap.first_line }}"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the Endlessh systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=endlessh.service
+          register: endlessh_service_log
+          changed_when: false
+
+        - name: Show the Endlessh systemd service log
+          ansible.builtin.debug:
+            var: endlessh_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "Endlessh verification failed. The systemd service log is printed above."
