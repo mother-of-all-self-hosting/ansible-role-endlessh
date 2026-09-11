@@ -107,6 +107,9 @@
           "looks_like_ssh": bool(first_line is not None and first_line.startswith(b"SSH-")),
       }))
 
+    endlessh_verify_units:
+      - endlessh.service
+
   tasks:
     - name: Verify that Endlessh works
       block:
@@ -118,13 +121,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: endlessh_defaults
 
-        - name: Wait for the Endlessh systemd service to become active (up to 180s)
+        - name: Wait for the Endlessh systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: endlessh.service
-          register: endlessh_service
-          until: endlessh_service.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: endlessh_services
+          until: endlessh_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ endlessh_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -132,17 +136,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the Endlessh systemd service is active
+        - name: Assert the Endlessh systemd services are active
           ansible.builtin.assert:
-            that: endlessh_service.status.ActiveState == 'active'
-            fail_msg: "endlessh.service is not active ({{ endlessh_service.status.ActiveState }})"
-            success_msg: "endlessh.service is active"
+            that: endlessh_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(endlessh_verify_units | zip(endlessh_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the Endlessh systemd service log for debugging
+        - name: Retrieve the Endlessh systemd services log for debugging
           when: endlessh_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=endlessh.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
+          loop: "{{ endlessh_verify_units }}"
 
         # Everything below talks to a container over the network, which only proves
         # that something is answering. Reading the container back is what says it is
@@ -357,7 +364,7 @@
             endlessh_container_state: "{{ (endlessh_container_raw.stdout | from_json)[0] }}"
           ansible.builtin.debug:
             msg:
-              - "Endlessh systemd: {{ endlessh_service.status.ActiveState }}"
+              - "Endlessh systemd: {% for unit, state in endlessh_verify_units | zip(endlessh_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "Endlessh container: {{ endlessh_container_state.Config.Image }} ({{ endlessh_container_state.State.Health.Status }})"
               - "Endlessh tarpit: {{ endlessh_trap.line_count }} lines, up to {{ endlessh_trap.max_line_length }} bytes, every {{ endlessh_trap.mean_gap_seconds }}s"
               - "Standalone image baseline: {{ endlessh_baseline.line_count }} lines, up to {{ endlessh_baseline.max_line_length }} bytes, every {{ endlessh_baseline.mean_gap_seconds }}s"
