@@ -164,14 +164,23 @@
         # because the ansible-lint environment used by pre-commit does not have the
         # community.docker collection and would fail the syntax check. Asked without
         # `--format`, so that the whole document comes back to be parsed here.
-        - name: Wait for the Endlessh container to report itself healthy (up to 120s)
+        - name: Wait for Endlessh to report itself healthy (up to 180s)
           ansible.builtin.command:
             cmd: docker container inspect {{ endlessh_defaults.endlessh_identifier }}
           register: endlessh_container_raw
           changed_when: false
           until: (endlessh_container_raw.stdout | from_json)[0].State.Health.Status | default('') == 'healthy'
-          retries: 24
+          retries: 36
           delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
+
+        - name: Assert Endlessh reports itself healthy
+          ansible.builtin.assert:
+            that: (endlessh_container_raw.stdout | from_json)[0].State.Health.Status == 'healthy'
+            fail_msg: "Endlessh did not report itself healthy: {{ (endlessh_container_raw.stdout | from_json)[0].State.Health.Status | default('no response') }}"
+            success_msg: "Endlessh reports itself healthy"
 
         - name: Assert the Endlessh container runs the image version this role installs
           vars:
@@ -179,7 +188,6 @@
           ansible.builtin.assert:
             that:
               - endlessh_container_state.State.Running | bool
-              - endlessh_container_state.State.Health.Status == 'healthy'
               - endlessh_container_state.Config.Image.split(':') | last == endlessh_defaults.endlessh_version | string
             fail_msg: "Unexpected container state: image {{ endlessh_container_state.Config.Image }}, health {{ endlessh_container_state.State.Health.Status | default('none') }}"
             success_msg: "The container is healthy and runs {{ endlessh_container_state.Config.Image }}"
