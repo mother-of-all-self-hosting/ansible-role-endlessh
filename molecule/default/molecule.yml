@@ -31,6 +31,7 @@ provisioner:
       all:
         # Helper variables
         endlessh_debug_service_enabled: false
+        endlessh_restarts_check_enabled: true
 
         # The port on the host that the tarpit is published on. With its
         # defaults the role publishes no SSH port at all (it expects Traefik to
