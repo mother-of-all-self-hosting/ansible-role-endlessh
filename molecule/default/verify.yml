@@ -295,7 +295,7 @@
         # What the scenario asked for, observed from the other end of a socket:
         # a quarter-second drip instead of the image's one second, and lines capped
         # at 12 bytes instead of 32. Neither value can be reached without the flags
-        # travelling from `endlessh_container_extra_arguments_custom` through the
+        # travelling from `endlessh_process_extra_arguments_custom` through the
         # rendered systemd unit into the running process.
         - name: Assert the configured drip interval and line length reached the process
           vars:

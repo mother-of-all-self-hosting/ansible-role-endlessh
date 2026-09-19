@@ -136,13 +136,14 @@ endlessh_container_labels_additional_labels: "{{ endlessh_container_labels_addit
 endlessh_container_labels_additional_labels_auto: []
 endlessh_container_labels_additional_labels_custom: []
 
-# A list of extra arguments to pass to the container (`docker create` command)
-endlessh_container_extra_arguments: "{{ endlessh_container_extra_arguments_custom + endlessh_container_extra_arguments_auto }}"
-endlessh_container_extra_arguments_custom: []
-endlessh_container_extra_arguments_auto:
+# A list of extra arguments to pass to the process inside the container
+# Example: ['--SOME_ARGUMENT']
+endlessh_process_extra_arguments: "{{ endlessh_process_extra_arguments_auto + endlessh_process_extra_arguments_custom }}"
+endlessh_process_extra_arguments_auto:
   - -logtostderr
   - -v=1
   - "{{ '-proxy_protocol_enabled' if endlessh_container_labels_traefik_tcp_enabled and endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport != '' }}"
+endlessh_process_extra_arguments_custom: []
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.

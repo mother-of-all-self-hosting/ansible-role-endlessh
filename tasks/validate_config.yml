@@ -18,6 +18,9 @@
     - { "old": "endlessh_container_labels_middleware_basic_auth_enabled", "new": "endlessh_container_labels_traefik_metrics_middleware_basic_auth_enabled" }
     - { "old": "endlessh_container_labels_middleware_basic_auth_users", "new": "endlessh_container_labels_traefik_metrics_middleware_basic_auth_users" }
     - { "old": "endlessh_container_labels_traefik_loadbalancer_serverstransport", "new": "endlessh_container_labels_traefik_tcp_loadbalancer_serverstransport" }
+    - { "old": "endlessh_container_extra_arguments", "new": "endlessh_process_extra_arguments" }
+    - { "old": "endlessh_container_extra_arguments_custom", "new": "endlessh_process_extra_arguments_custom" }
+    - { "old": "endlessh_container_extra_arguments_auto", "new": "endlessh_process_extra_arguments_auto" }
     - { "old": "endlessh_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
 
 - name: (Deprecation) Catch and report renamed settings

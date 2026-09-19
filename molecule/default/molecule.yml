@@ -81,7 +81,7 @@ provisioner:
         # healthcheck server, even though the image declares a HEALTHCHECK that
         # queries the latter. Both are switched on here so that `verify.yml`
         # can observe them.
-        endlessh_container_extra_arguments_custom:
+        endlessh_process_extra_arguments_custom:
           - "-interval_ms={{ endlessh_molecule_interval_ms }}"
           - "-line_length={{ endlessh_molecule_line_length }}"
           - -prometheus_enabled
