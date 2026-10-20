@@ -13,11 +13,11 @@ traefik.docker.network={{ endlessh_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% if endlessh_container_labels_traefik_metrics_enabled %}
-############################################################
-#                                                          #
-# Metrics                                                  #
-#                                                          #
-############################################################
+########################################################################
+#                                                                      #
+# Metrics                                                              #
+#                                                                      #
+########################################################################
 
 {% set middlewares = [] %}
 
@@ -46,11 +46,11 @@ traefik.http.routers.{{ endlessh_identifier }}.tls.certResolver={{ endlessh_cont
 
 traefik.http.services.{{ endlessh_identifier }}.loadbalancer.server.port={{ endlessh_container_http_port }}
 
-############################################################
-#                                                          #
-# /Metrics                                                 #
-#                                                          #
-############################################################
+########################################################################
+#                                                                      #
+# /Metrics                                                             #
+#                                                                      #
+########################################################################
 {% endif %}
 
 {% if endlessh_container_labels_traefik_tcp_enabled and endlessh_container_ssh_host_bind_port %}
