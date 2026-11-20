@@ -39,7 +39,6 @@
   with_items:
     - endlessh_uid
     - endlessh_gid
-    - endlessh_container_network
 
 - name: Run if Traefik is enabled for metrics
   when: endlessh_container_labels_traefik_metrics_enabled | bool
