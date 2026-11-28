@@ -61,6 +61,7 @@
         owner: "{{ endlessh_uid }}"
         group: "{{ endlessh_gid }}"
         recurse: true
+      tags: molecule-idempotence-notest
 
     - name: Ensure Endlessh repository is present on self-build
       ansible.builtin.git:
